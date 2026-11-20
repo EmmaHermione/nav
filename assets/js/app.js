@@ -159,8 +159,9 @@
 
   // Hitokoto (一言)
   async function fetchHitokoto() {
+    const hitokotoRefreshBtn = document.getElementById('hitokoto-refresh-btn');
     try {
-      hitokotoRefreshBtn.classList.add('animate-spin');
+      if (hitokotoRefreshBtn) hitokotoRefreshBtn.classList.add('animate-spin');
       const response = await fetch('https://v1.hitokoto.cn/?encode=json');
       if (!response.ok) throw new Error('API offline');
       const data = await response.json();
@@ -169,11 +170,16 @@
       const random = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
       displayHitokoto(random.hitokoto, random.from);
     } finally {
-      setTimeout(() => hitokotoRefreshBtn.classList.remove('animate-spin'), 600);
+      if (hitokotoRefreshBtn) {
+        setTimeout(() => hitokotoRefreshBtn.classList.remove('animate-spin'), 600);
+      }
     }
   }
 
   function displayHitokoto(quote, from) {
+    const hitokotoText = document.getElementById('hitokoto-text');
+    const hitokotoFrom = document.getElementById('hitokoto-from');
+    if (!hitokotoText || !hitokotoFrom) return;
     hitokotoText.style.opacity = '0';
     hitokotoFrom.style.opacity = '0';
     setTimeout(() => {
@@ -189,6 +195,13 @@
     if (!navData) return;
     renderSidebarNav();
     renderContentCategories();
+    fetchHitokoto();
+
+    const statBadge = document.getElementById('header-stat-badge');
+    if (statBadge) {
+      const total = navData.categories.reduce((acc, c) => acc + c.items.length, 0);
+      statBadge.textContent = `${total} 书签在线`;
+    }
   }
 
   function renderSidebarNav() {
@@ -237,6 +250,53 @@
 
   function renderContentCategories() {
     let html = '';
+
+    // Hero Greeting & Hitokoto Bento Banner
+    const now = new Date();
+    const hours = now.getHours();
+    let greeting = '👋 您好，探索精彩世界';
+    if (hours < 6) greeting = '🌙 夜深了，注意休息';
+    else if (hours < 12) greeting = '🌅 早上好，开始元气满满的一天';
+    else if (hours < 14) greeting = '☀️ 中午好，记得按时吃午饭';
+    else if (hours < 18) greeting = '☕ 下午好，饮杯茶放松一下';
+    else greeting = '🌙 晚上好，享受平静的数字时光';
+
+    const dateStr = now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' });
+    const totalCount = navData.categories.reduce((acc, c) => acc + c.items.length, 0);
+
+    html += `
+      <div id="hero-banner" class="glass-card rounded-2xl p-4 sm:p-5 mb-6 border-indigo-500/15 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-transparent relative overflow-hidden shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <!-- Left: Greeting & Hitokoto -->
+          <div class="flex items-start gap-3 flex-1 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 shadow-sm mt-0.5">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            </div>
+            <div class="overflow-hidden flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h2 class="text-sm font-semibold text-[var(--card-text-primary)] tracking-wide">${greeting}</h2>
+                <span class="text-[11px] text-[var(--card-text-secondary)] font-mono opacity-70">${dateStr}</span>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 text-xs text-[var(--card-text-secondary)] overflow-hidden">
+                <span id="hitokoto-text" class="text-[var(--card-text-primary)] opacity-90 truncate transition-opacity duration-200">正在获取一言...</span>
+                <span id="hitokoto-from" class="text-[11px] opacity-75 font-mono truncate transition-opacity duration-200">—— 个人导航</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Action & Mini Badges -->
+          <div class="flex items-center gap-2 self-end md:self-center shrink-0">
+            <span class="text-[11px] px-2.5 py-1 rounded-xl bg-white/5 border border-[var(--glass-border)] text-[var(--card-text-secondary)] font-mono hidden sm:inline-block">
+              ${totalCount} 书签
+            </span>
+            <button id="hitokoto-refresh-btn" class="px-2.5 py-1 rounded-xl glass-card text-xs text-[var(--card-text-secondary)] hover:text-indigo-400 hover:bg-white/10 transition-all flex items-center gap-1 shadow-sm" title="换一则一言">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>换一则</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
 
     navData.categories.forEach(cat => {
       html += `
@@ -546,6 +606,11 @@
         section.style.display = visibleCards.length > 0 ? 'block' : 'none';
       }
     });
+
+    const heroBanner = document.getElementById('hero-banner');
+    if (heroBanner) {
+      heroBanner.style.display = query ? 'none' : 'block';
+    }
   }
 
   function handleSearchSubmit() {
@@ -640,8 +705,13 @@
       });
     }
 
-    // Hitokoto Refresh
-    hitokotoRefreshBtn.addEventListener('click', fetchHitokoto);
+    // Hitokoto Refresh (delegated)
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('#hitokoto-refresh-btn');
+      if (btn) {
+        fetchHitokoto();
+      }
+    });
 
     // Unlock Modal logic
     unlockSubmitBtn.addEventListener('click', submitUnlock);
