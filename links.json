@@ -1,7 +1,11 @@
 {
   "site": {
     "title": "个人导航",
-    "subtitle": "探索数字世界的精致起点",
+    "subtitle": "",
+    "hitokoto": {
+      "maxLength": 14,
+      "types": ["d", "i", "k"]
+    },
     "logoText": "NAV.",
     "badge": "Bento Pro",
     "footerText": "© 2026 loverorien · 个人导航",

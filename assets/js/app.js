@@ -28,6 +28,8 @@
   const desktopSidebarToggleBtn = document.getElementById('desktop-sidebar-toggle-btn');
   const collapseIcon = document.getElementById('collapse-icon');
   const brandLogoBtn = document.getElementById('brand-logo-btn');
+  const sidebarSubtitle = document.getElementById('sidebar-subtitle');
+  const sidebarHitokotoRefreshBtn = document.getElementById('sidebar-hitokoto-refresh-btn');
   const toastContainer = document.getElementById('toast-container');
   const hitokotoText = document.getElementById('hitokoto-text');
   const hitokotoFrom = document.getElementById('hitokoto-from');
@@ -52,13 +54,13 @@
   const toolOutput = document.getElementById('tool-output');
   const toolCopyBtn = document.getElementById('tool-copy-btn');
 
-  // Fallback Hitokoto Quotes
+  // Fallback Hitokoto Quotes (Short & Aesthetic)
   const fallbackQuotes = [
-    { hitokoto: "生活原本沉闷，但跑起来就会有风。", from: "网络" },
-    { hitokoto: "星光不问赶路人，岁月不负有心人。", from: "大冰" },
+    { hitokoto: "心有猛虎，细嗅蔷薇。", from: "西格夫里·萨松" },
+    { hitokoto: "星光不问赶路人。", from: "大冰" },
+    { hitokoto: "生活原本沉闷，跑起来有风。", from: "网络" },
     { hitokoto: "Stay hungry, stay foolish.", from: "Steve Jobs" },
-    { hitokoto: "每一个不曾起舞的日子，都是对生命的辜负。", from: "尼采" },
-    { hitokoto: "代码即诗篇，探索永无止境。", from: "个人导航" }
+    { hitokoto: "代码即诗篇，探索无止境。", from: "个人导航" }
   ];
 
   // SVG Icons Helper
@@ -108,8 +110,8 @@
     initTheme();
     initSidebarState();
     setupEventListeners();
-    fetchHitokoto();
     await loadNavigationData();
+    fetchHitokoto();
   }
 
   // Sidebar Collapse Management
@@ -151,6 +153,7 @@
       const response = await fetch('./links.json');
       if (!response.ok) throw new Error('Failed to load links.json');
       navData = await response.json();
+      renderSidebarSubtitle();
       renderAll();
     } catch (err) {
       console.warn('Could not load links.json directly via fetch:', err);
@@ -159,19 +162,73 @@
     }
   }
 
+  // Check if custom subtitle is set in links.json
+  function getCustomSubtitle() {
+    if (navData && navData.site && typeof navData.site.subtitle === 'string' && navData.site.subtitle.trim() !== '') {
+      return navData.site.subtitle.trim();
+    }
+    return null;
+  }
+
+  // Construct Hitokoto API URL from links.json config (supports max_length and types)
+  function buildHitokotoUrl() {
+    const config = navData?.site?.hitokoto || {};
+    const maxLength = config.maxLength || 14;
+    const types = Array.isArray(config.types) && config.types.length > 0 ? config.types : ['d', 'i', 'k'];
+    let url = `https://v1.hitokoto.cn/?encode=json&max_length=${maxLength}`;
+    types.forEach(t => {
+      url += `&c=${encodeURIComponent(t)}`;
+    });
+    return url;
+  }
+
+  function renderSidebarSubtitle(quote, from) {
+    if (!sidebarSubtitle) return;
+    const custom = getCustomSubtitle();
+    if (custom) {
+      sidebarSubtitle.textContent = custom;
+      sidebarSubtitle.title = custom;
+      if (sidebarHitokotoRefreshBtn) sidebarHitokotoRefreshBtn.classList.add('hidden');
+    } else {
+      if (sidebarHitokotoRefreshBtn) sidebarHitokotoRefreshBtn.classList.remove('hidden');
+      if (quote) {
+        sidebarSubtitle.style.opacity = '0';
+        setTimeout(() => {
+          sidebarSubtitle.textContent = quote;
+          sidebarSubtitle.title = `“${quote}” —— ${from || '一言'} (点击换一言)`;
+          sidebarSubtitle.style.opacity = '1';
+        }, 150);
+      } else {
+        sidebarSubtitle.textContent = '加载一言中...';
+        sidebarSubtitle.title = '点击换一言';
+      }
+    }
+  }
+
   // Hitokoto (一言)
   async function fetchHitokoto() {
     try {
-      hitokotoRefreshBtn.classList.add('animate-spin');
-      const response = await fetch('https://v1.hitokoto.cn/?encode=json');
+      if (hitokotoRefreshBtn) hitokotoRefreshBtn.classList.add('animate-spin');
+      if (sidebarHitokotoRefreshBtn) sidebarHitokotoRefreshBtn.classList.add('animate-spin');
+      const apiUrl = buildHitokotoUrl();
+      const response = await fetch(apiUrl);
       if (!response.ok) throw new Error('API offline');
       const data = await response.json();
-      displayHitokoto(data.hitokoto, data.from_who || data.from || '未知');
+      const quote = data.hitokoto;
+      const from = data.from_who || data.from || '未知';
+      displayHitokoto(quote, from);
+      renderSidebarSubtitle(quote, from);
     } catch (err) {
       const random = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
       displayHitokoto(random.hitokoto, random.from);
+      renderSidebarSubtitle(random.hitokoto, random.from);
     } finally {
-      setTimeout(() => hitokotoRefreshBtn.classList.remove('animate-spin'), 600);
+      if (hitokotoRefreshBtn) {
+        setTimeout(() => hitokotoRefreshBtn.classList.remove('animate-spin'), 600);
+      }
+      if (sidebarHitokotoRefreshBtn) {
+        setTimeout(() => sidebarHitokotoRefreshBtn.classList.remove('animate-spin'), 600);
+      }
     }
   }
 
@@ -743,8 +800,28 @@
       });
     }
 
-    // Hitokoto Refresh
-    hitokotoRefreshBtn.addEventListener('click', fetchHitokoto);
+    // Hitokoto Refresh (Hero & Sidebar)
+    if (hitokotoRefreshBtn) {
+      hitokotoRefreshBtn.addEventListener('click', fetchHitokoto);
+    }
+    if (sidebarHitokotoRefreshBtn) {
+      sidebarHitokotoRefreshBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fetchHitokoto();
+      });
+    }
+
+    // Sidebar Subtitle Click (only refreshes when in Hitokoto mode)
+    if (sidebarSubtitle) {
+      sidebarSubtitle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!getCustomSubtitle()) {
+          fetchHitokoto();
+        }
+      });
+    }
 
     // Floating Back to Top Button
     if (backToTopBtn) {
