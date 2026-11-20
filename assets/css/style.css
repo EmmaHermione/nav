@@ -86,6 +86,16 @@ body {
   background: rgba(156, 163, 175, 0.45);
 }
 
+/* Hide scrollbar for clean horizontal scroll on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
 /* Shaking animation for password error */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }

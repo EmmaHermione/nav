@@ -16,16 +16,10 @@
       "placeholder": "使用 Google 搜索全网..."
     },
     {
-      "id": "baidu",
-      "name": "百度",
-      "url": "https://www.baidu.com/s?wd=",
-      "placeholder": "使用百度搜索..."
-    },
-    {
       "id": "bing",
       "name": "Bing",
       "url": "https://www.bing.com/search?q=",
-      "placeholder": "使用必应搜索..."
+      "placeholder": "使用微软必应搜索..."
     },
     {
       "id": "github",
@@ -38,6 +32,12 @@
       "name": "B站",
       "url": "https://search.bilibili.com/all?keyword=",
       "placeholder": "搜索哔哩哔哩视频..."
+    },
+    {
+      "id": "zlibrary",
+      "name": "zlibrary",
+      "url": "https://z-library.ec/s/",
+      "placeholder": "在 Z-Library 检索电子书籍与学术论文..."
     }
   ],
   "categories": [

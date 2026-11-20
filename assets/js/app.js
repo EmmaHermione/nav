@@ -20,6 +20,8 @@
   const mainContent = document.getElementById('main-content');
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileSidebarCloseBtn = document.getElementById('mobile-sidebar-close-btn');
+  const mobileThemeToggleBtn = document.getElementById('mobile-theme-toggle-btn');
   const sidebar = document.getElementById('sidebar');
   const sidebarBackdrop = document.getElementById('sidebar-backdrop');
   const sidebarCollapseBtn = document.getElementById('sidebar-collapse-btn');
@@ -624,11 +626,22 @@
       setTheme(isLight ? 'dark' : 'light');
     });
 
+    if (mobileThemeToggleBtn) {
+      mobileThemeToggleBtn.addEventListener('click', () => {
+        const isLight = document.documentElement.classList.contains('light');
+        setTheme(isLight ? 'dark' : 'light');
+      });
+    }
+
     // Mobile Sidebar
     mobileMenuBtn.addEventListener('click', () => {
       sidebar.classList.toggle('-translate-x-full');
       sidebarBackdrop.classList.toggle('hidden');
     });
+
+    if (mobileSidebarCloseBtn) {
+      mobileSidebarCloseBtn.addEventListener('click', closeMobileSidebar);
+    }
 
     sidebarBackdrop.addEventListener('click', closeMobileSidebar);
 
