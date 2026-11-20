@@ -54,13 +54,21 @@
   const toolOutput = document.getElementById('tool-output');
   const toolCopyBtn = document.getElementById('tool-copy-btn');
 
-  // Fallback Hitokoto Quotes (Short & Aesthetic)
-  const fallbackQuotes = [
+  // Fallback Hitokoto Quotes
+  const fallbackShortQuotes = [
     { hitokoto: "心有猛虎，细嗅蔷薇。", from: "西格夫里·萨松" },
     { hitokoto: "星光不问赶路人。", from: "大冰" },
     { hitokoto: "生活原本沉闷，跑起来有风。", from: "网络" },
     { hitokoto: "Stay hungry, stay foolish.", from: "Steve Jobs" },
     { hitokoto: "代码即诗篇，探索无止境。", from: "个人导航" }
+  ];
+
+  const fallbackHeroQuotes = [
+    { hitokoto: "每一个不曾起舞的日子，都是对生命的辜负。", from: "尼采" },
+    { hitokoto: "生活原本沉闷，但跑起来就会有风。", from: "网络" },
+    { hitokoto: "星光不问赶路人，岁月不负有心人。", from: "大冰" },
+    { hitokoto: "Stay hungry, stay foolish.", from: "Steve Jobs" },
+    { hitokoto: "愿你出走半生，归来仍是少年。", from: "网络" }
   ];
 
   // SVG Icons Helper
@@ -111,7 +119,10 @@
     initSidebarState();
     setupEventListeners();
     await loadNavigationData();
-    fetchHitokoto();
+    fetchHeroHitokoto();
+    if (!getCustomSubtitle()) {
+      fetchSidebarHitokoto();
+    }
   }
 
   // Sidebar Collapse Management
@@ -170,16 +181,20 @@
     return null;
   }
 
-  // Construct Hitokoto API URL from links.json config (supports max_length and types)
-  function buildHitokotoUrl() {
-    const config = navData?.site?.hitokoto || {};
-    const maxLength = config.maxLength || 14;
-    const types = Array.isArray(config.types) && config.types.length > 0 ? config.types : ['d', 'i', 'k'];
-    let url = `https://v1.hitokoto.cn/?encode=json&max_length=${maxLength}`;
-    types.forEach(t => {
-      url += `&c=${encodeURIComponent(t)}`;
-    });
-    return url;
+  // Construct Hitokoto API URL from config (supports maxLength, minLength, types)
+  function buildHitokotoUrl(config = {}) {
+    const params = new URLSearchParams();
+    params.set('encode', 'json');
+    if (config.maxLength && typeof config.maxLength === 'number' && config.maxLength > 0) {
+      params.set('max_length', config.maxLength);
+    }
+    if (config.minLength && typeof config.minLength === 'number' && config.minLength > 0) {
+      params.set('min_length', config.minLength);
+    }
+    if (Array.isArray(config.types) && config.types.length > 0) {
+      config.types.forEach(t => params.append('c', t));
+    }
+    return `https://v1.hitokoto.cn/?${params.toString()}`;
   }
 
   function renderSidebarSubtitle(quote, from) {
@@ -205,27 +220,44 @@
     }
   }
 
-  // Hitokoto (一言)
-  async function fetchHitokoto() {
+  // Hero Hitokoto (Search Section - No length limitation by default, fully configurable)
+  async function fetchHeroHitokoto() {
+    if (!hitokotoText) return;
     try {
       if (hitokotoRefreshBtn) hitokotoRefreshBtn.classList.add('animate-spin');
+      const heroConfig = navData?.site?.hitokoto?.hero || navData?.site?.heroHitokoto || {};
+      const apiUrl = buildHitokotoUrl(heroConfig);
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('API offline');
+      const data = await response.json();
+      displayHitokoto(data.hitokoto, data.from_who || data.from || '未知');
+    } catch (err) {
+      const random = fallbackHeroQuotes[Math.floor(Math.random() * fallbackHeroQuotes.length)];
+      displayHitokoto(random.hitokoto, random.from);
+    } finally {
+      if (hitokotoRefreshBtn) {
+        setTimeout(() => hitokotoRefreshBtn.classList.remove('animate-spin'), 600);
+      }
+    }
+  }
+
+  // Sidebar Hitokoto (Sidebar Header - Short sentences with word length limitation)
+  async function fetchSidebarHitokoto() {
+    if (!sidebarSubtitle || getCustomSubtitle()) return;
+    try {
       if (sidebarHitokotoRefreshBtn) sidebarHitokotoRefreshBtn.classList.add('animate-spin');
-      const apiUrl = buildHitokotoUrl();
+      const sidebarConfig = navData?.site?.hitokoto?.sidebar || navData?.site?.sidebarHitokoto || { maxLength: 12, types: ['d', 'i', 'k'] };
+      const apiUrl = buildHitokotoUrl(sidebarConfig);
       const response = await fetch(apiUrl);
       if (!response.ok) throw new Error('API offline');
       const data = await response.json();
       const quote = data.hitokoto;
       const from = data.from_who || data.from || '未知';
-      displayHitokoto(quote, from);
       renderSidebarSubtitle(quote, from);
     } catch (err) {
-      const random = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
-      displayHitokoto(random.hitokoto, random.from);
+      const random = fallbackShortQuotes[Math.floor(Math.random() * fallbackShortQuotes.length)];
       renderSidebarSubtitle(random.hitokoto, random.from);
     } finally {
-      if (hitokotoRefreshBtn) {
-        setTimeout(() => hitokotoRefreshBtn.classList.remove('animate-spin'), 600);
-      }
       if (sidebarHitokotoRefreshBtn) {
         setTimeout(() => sidebarHitokotoRefreshBtn.classList.remove('animate-spin'), 600);
       }
@@ -800,25 +832,25 @@
       });
     }
 
-    // Hitokoto Refresh (Hero & Sidebar)
+    // Hitokoto Refresh (Independent for Hero and Sidebar)
     if (hitokotoRefreshBtn) {
-      hitokotoRefreshBtn.addEventListener('click', fetchHitokoto);
+      hitokotoRefreshBtn.addEventListener('click', fetchHeroHitokoto);
     }
     if (sidebarHitokotoRefreshBtn) {
       sidebarHitokotoRefreshBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        fetchHitokoto();
+        fetchSidebarHitokoto();
       });
     }
 
-    // Sidebar Subtitle Click (only refreshes when in Hitokoto mode)
+    // Sidebar Subtitle Click (only refreshes sidebar when in Hitokoto mode)
     if (sidebarSubtitle) {
       sidebarSubtitle.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (!getCustomSubtitle()) {
-          fetchHitokoto();
+          fetchSidebarHitokoto();
         }
       });
     }

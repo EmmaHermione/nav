@@ -3,8 +3,14 @@
     "title": "个人导航",
     "subtitle": "",
     "hitokoto": {
-      "maxLength": 14,
-      "types": ["d", "i", "k"]
+      "sidebar": {
+        "maxLength": 12,
+        "types": ["d", "i", "k"]
+      },
+      "hero": {
+        "maxLength": null,
+        "types": []
+      }
     },
     "logoText": "NAV.",
     "badge": "Bento Pro",
