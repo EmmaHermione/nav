@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>私密书签离线加密工具 - Bento Glass</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'/></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#6366f1', 600: '#4f46e5' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background: radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 75%, rgba(168, 85, 247, 0.12) 0%, transparent 40%),
+                  #0c0f1d;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-input {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+    }
+    .glass-input:focus {
+      border-color: #6366f1;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 lg:p-8">
+
+  <!-- Main Container -->
+  <main class="max-w-2xl mx-auto w-full my-auto py-6">
+    <!-- Header Navigation Link -->
+    <div class="mb-4 flex items-center justify-between">
+      <a href="./index.html" class="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors py-1 px-2.5 rounded-lg hover:bg-white/5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>返回个人导航</span>
+      </a>
+      <span class="text-[11px] font-mono text-slate-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/10">
+        AES-256-GCM 独立离线版
+      </span>
+    </div>
+
+    <!-- Generator Bento Panel -->
+    <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <!-- Ambient Glow -->
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Header -->
+      <div class="flex items-center gap-3.5 pb-5 border-b border-white/10 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            私密书签离线加密工具
+          </h1>
+          <p class="text-xs text-slate-400 mt-0.5">
+            100% 浏览器本地离线计算，绝不上传任何明文，生成即用。
+          </p>
+        </div>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="space-y-5">
+        <!-- Password Field -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span>第一步：设置私密访问密码</span>
+            <span class="text-[11px] text-slate-400 font-normal">用于在导航站解密查看</span>
+          </label>
+          <div class="relative">
+            <input id="password-input" type="password" placeholder="输入你要设定的解锁密码..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm pr-10 transition-all">
+            <button id="toggle-pwd-btn" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1" title="切换密码可见">
+              <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bookmarks JSON Field -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-slate-300">第二步：输入私密书签 JSON 列表</label>
+            <div class="flex items-center gap-2">
+              <button id="format-json-btn" type="button" class="text-[11px] text-indigo-400 hover:text-indigo-300 hover:underline">格式化 JSON</button>
+              <button id="reset-sample-btn" type="button" class="text-[11px] text-slate-400 hover:text-slate-200 hover:underline">填入示例</button>
+            </div>
+          </div>
+          <textarea id="json-input" rows="7" class="glass-input w-full rounded-xl p-3 text-xs font-mono transition-all leading-relaxed" placeholder="请输入合法的 JSON 数组，包含 title, url, description, icon..."></textarea>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generate-btn" type="button" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>一键计算生成加密密文 (AES-256-GCM)</span>
+        </button>
+
+        <!-- Result Output -->
+        <div id="result-container" class="pt-2">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <span>第三步：生成结果</span>
+              <span id="item-count-badge" class="hidden text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">已加密 0 个书签</span>
+            </label>
+            <button id="copy-btn" type="button" class="hidden text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span>整段复制结果</span>
+            </button>
+          </div>
+          <textarea id="output-box" readonly rows="8" placeholder="点击上方按钮后在此输出，整段替换 links.json 中的 &quot;crypto&quot;: { ... } 即可。" class="glass-input w-full rounded-xl p-3 text-xs font-mono text-slate-300 border border-white/10 bg-black/40 focus:outline-none"></textarea>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-xs text-slate-400 py-4 font-mono">
+    <p>© 2026 个人导航 · 本地离线安全工具</p>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3 flex items-center gap-2"></div>
+
+  <script>
+    const sampleBookmarks = [
+      {
+        "title": "私有云盘",
+        "url": "https://nas.example.com",
+        "description": "私有家庭存储中心",
+        "icon": ""
+      },
+      {
+        "title": "内网管理后台",
+        "url": "https://pve.internal.net",
+        "description": "PVE 虚拟化集群面板",
+        "icon": ""
+      }
+    ];
+
+    const passwordInput = document.getElementById('password-input');
+    const jsonInput = document.getElementById('json-input');
+    const togglePwdBtn = document.getElementById('toggle-pwd-btn');
+    const formatJsonBtn = document.getElementById('format-json-btn');
+    const resetSampleBtn = document.getElementById('reset-sample-btn');
+    const generateBtn = document.getElementById('generate-btn');
+    const outputBox = document.getElementById('output-box');
+    const copyBtn = document.getElementById('copy-btn');
+    const itemCountBadge = document.getElementById('item-count-badge');
+    const toast = document.getElementById('toast');
+
+    // Init sample
+    jsonInput.value = JSON.stringify(sampleBookmarks, null, 2);
+
+    // Toggle Password Visibility
+    togglePwdBtn.addEventListener('click', () => {
+      passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+    });
+
+    // Format JSON
+    formatJsonBtn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(jsonInput.value.trim());
+        jsonInput.value = JSON.stringify(parsed, null, 2);
+        showToast('JSON 格式化成功', 'success');
+      } catch (err) {
+        showToast('JSON 格式错误: ' + err.message, 'error');
+      }
+    });
+
+    // Reset Sample
+    resetSampleBtn.addEventListener('click', () => {
+      jsonInput.value = JSON.stringify(sampleBookmarks, null, 2);
+      showToast('已重置为示例书签', 'info');
+    });
+
+    // Generate Encrypted Ciphertext
+    generateBtn.addEventListener('click', async () => {
+      const password = passwordInput.value.trim();
+      const rawJson = jsonInput.value.trim();
+
+      if (!password) {
+        showToast('请先输入解锁密码', 'error');
+        passwordInput.focus();
+        return;
+      }
+
+      let items;
+      try {
+        items = JSON.parse(rawJson);
+        if (!Array.isArray(items)) throw new Error('书签根节点必须是数组 []');
+      } catch (err) {
+        showToast('书签内容不是合法的 JSON 数组', 'error');
+        return;
+      }
+
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = `
+        <svg class="w-4 h-4 animate-spin inline mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        正在进行 PBKDF2 (100,000次) + AES-GCM 加密计算...
+      `;
+
+      try {
+        const cryptoResult = await encryptVault(password, items);
+        const snippet = `"crypto": ` + JSON.stringify(cryptoResult, null, 2);
+        outputBox.value = snippet;
+        copyBtn.classList.remove('hidden');
+        itemCountBadge.classList.remove('hidden');
+        itemCountBadge.textContent = `已成功加密 ${items.length} 个书签`;
+        showToast(`🎉 成功加密 ${items.length} 个书签！点击右上角直接复制`, 'success');
+      } catch (err) {
+        showToast('加密失败: ' + err.message, 'error');
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = `
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>一键计算生成加密密文 (AES-256-GCM)</span>
+        `;
+      }
+    });
+
+    // Copy Result
+    copyBtn.addEventListener('click', () => {
+      if (!outputBox.value) return;
+      navigator.clipboard.writeText(outputBox.value).then(() => {
+        showToast('✅ 已复制加密密文片段，直接替换 links.json 中的 "crypto": { ... } 即可！', 'success');
+      }).catch(() => {
+        outputBox.select();
+        document.execCommand('copy');
+        showToast('✅ 已复制到剪贴板！', 'success');
+      });
+    });
+
+    // Native Web Crypto API: PBKDF2 (100,000 iterations) + AES-256-GCM
+    async function encryptVault(password, itemsArray) {
+      const salt = window.crypto.getRandomValues(new Uint8Array(16));
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+      const subtle = window.crypto.subtle;
+
+      const pwKey = await subtle.importKey(
+        'raw',
+        new TextEncoder().encode(password),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveKey']
+      );
+
+      const derivedKey = await subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: salt,
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        pwKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt']
+      );
+
+      const plaintext = new TextEncoder().encode(JSON.stringify(itemsArray));
+      const ciphertextWithTag = await subtle.encrypt(
+        {
+          name: 'AES-GCM',
+          iv: iv
+        },
+        derivedKey,
+        plaintext
+      );
+
+      return {
+        algorithm: 'AES-256-GCM',
+        kdf: 'PBKDF2-SHA256',
+        iterations: 100000,
+        salt: bytesToHex(salt),
+        iv: bytesToHex(iv),
+        ciphertext: bytesToHex(new Uint8Array(ciphertextWithTag)),
+        itemCount: itemsArray.length
+      };
+    }
+
+    function bytesToHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function showToast(msg, type = 'info') {
+      toast.textContent = msg;
+      toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl transition-all duration-300 flex items-center gap-2 ' +
+        (type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-rose-600 text-white' : 'bg-indigo-600 text-white');
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

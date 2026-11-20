@@ -43,16 +43,6 @@
   const unlockSubmitBtn = document.getElementById('unlock-submit-btn');
   const unlockCancelBtn = document.getElementById('unlock-cancel-btn');
   const togglePasswordVisibility = document.getElementById('toggle-password-visibility');
-  const openToolModalBtn = document.getElementById('open-tool-modal-btn');
-
-  // Encrypt Tool Modal Elements
-  const toolModal = document.getElementById('tool-modal');
-  const toolCloseBtn = document.getElementById('tool-close-btn');
-  const toolPasswordInput = document.getElementById('tool-password-input');
-  const toolJsonInput = document.getElementById('tool-json-input');
-  const toolGenerateBtn = document.getElementById('tool-generate-btn');
-  const toolOutput = document.getElementById('tool-output');
-  const toolCopyBtn = document.getElementById('tool-copy-btn');
 
   // Fallback Hitokoto Quotes
   const fallbackShortQuotes = [
@@ -626,53 +616,6 @@
   }
 
   // Web Crypto AES-256-GCM Encryption (For Generator Tool)
-  async function encryptVault(password, itemsArray) {
-    const salt = window.crypto.getRandomValues(new Uint8Array(16));
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
-    const subtle = window.crypto.subtle;
-
-    const pwKey = await subtle.importKey(
-      'raw',
-      new TextEncoder().encode(password),
-      { name: 'PBKDF2' },
-      false,
-      ['deriveKey']
-    );
-
-    const derivedKey = await subtle.deriveKey(
-      {
-        name: 'PBKDF2',
-        salt: salt,
-        iterations: 100000,
-        hash: 'SHA-256'
-      },
-      pwKey,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['encrypt']
-    );
-
-    const plaintext = new TextEncoder().encode(JSON.stringify(itemsArray));
-    const ciphertextWithTag = await subtle.encrypt(
-      {
-        name: 'AES-GCM',
-        iv: iv
-      },
-      derivedKey,
-      plaintext
-    );
-
-    return {
-      algorithm: 'AES-256-GCM',
-      kdf: 'PBKDF2-SHA256',
-      iterations: 100000,
-      salt: bytesToHex(salt),
-      iv: bytesToHex(iv),
-      ciphertext: bytesToHex(new Uint8Array(ciphertextWithTag)),
-      itemCount: itemsArray.length
-    };
-  }
-
   // Hex helpers
   function hexToBytes(hex) {
     const bytes = new Uint8Array(hex.length / 2);
@@ -890,22 +833,6 @@
       const isPass = unlockPasswordInput.type === 'password';
       unlockPasswordInput.type = isPass ? 'text' : 'password';
     });
-
-    // Secret Encryptor Tool Modal logic
-    openToolModalBtn.addEventListener('click', () => {
-      toolModal.classList.remove('hidden');
-    });
-    toolCloseBtn.addEventListener('click', () => {
-      toolModal.classList.add('hidden');
-    });
-    toolGenerateBtn.addEventListener('click', handleToolGenerate);
-    toolCopyBtn.addEventListener('click', () => {
-      if (toolOutput.value) {
-        navigator.clipboard.writeText(toolOutput.value).then(() => {
-          showToast('已复制加密密文 JSON 片段！', 'success');
-        });
-      }
-    });
   }
 
   function closeMobileSidebar() {
@@ -946,40 +873,6 @@
       unlockPasswordInput.classList.add('animate-shake', 'border-rose-500');
       setTimeout(() => unlockPasswordInput.classList.remove('animate-shake', 'border-rose-500'), 500);
       showToast('❌ 密码错误，解密失败', 'error');
-    }
-  }
-
-  async function handleToolGenerate() {
-    const password = toolPasswordInput.value.trim();
-    const jsonStr = toolJsonInput.value.trim();
-
-    if (!password) {
-      showToast('请设置私密密码', 'error');
-      return;
-    }
-
-    let items;
-    try {
-      items = JSON.parse(jsonStr);
-      if (!Array.isArray(items)) throw new Error('Must be array');
-    } catch (e) {
-      showToast('书签列表必须是标准的 JSON 数组格式', 'error');
-      return;
-    }
-
-    toolGenerateBtn.textContent = '正在计算 AES-256-GCM 密文...';
-    toolGenerateBtn.disabled = true;
-
-    try {
-      const cryptoResult = await encryptVault(password, items);
-      toolOutput.value = `"crypto": ` + JSON.stringify(cryptoResult, null, 2);
-      toolCopyBtn.classList.remove('hidden');
-      showToast('✅ 加密密文生成成功！可直接整段替换 links.json 中的 crypto 节点', 'success');
-    } catch (err) {
-      showToast('加密失败: ' + err.message, 'error');
-    } finally {
-      toolGenerateBtn.textContent = '一键生成加密密文';
-      toolGenerateBtn.disabled = false;
     }
   }
 
