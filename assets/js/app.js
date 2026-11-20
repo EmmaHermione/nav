@@ -24,6 +24,10 @@
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const sidebar = document.getElementById('sidebar');
   const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+  const sidebarCollapseBtn = document.getElementById('sidebar-collapse-btn');
+  const desktopSidebarToggleBtn = document.getElementById('desktop-sidebar-toggle-btn');
+  const collapseIcon = document.getElementById('collapse-icon');
+  const brandLogoBtn = document.getElementById('brand-logo-btn');
   const toastContainer = document.getElementById('toast-container');
   const hitokotoText = document.getElementById('hitokoto-text');
   const hitokotoFrom = document.getElementById('hitokoto-from');
@@ -100,9 +104,27 @@
   // Initialize App
   async function init() {
     initTheme();
+    initSidebarState();
     setupEventListeners();
     fetchHitokoto();
     await loadNavigationData();
+  }
+
+  // Sidebar Collapse Management
+  function initSidebarState() {
+    const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+    if (isCollapsed) {
+      sidebar.classList.add('is-collapsed');
+      if (collapseIcon) collapseIcon.classList.add('rotated');
+    }
+  }
+
+  function toggleSidebarCollapse() {
+    const isNowCollapsed = sidebar.classList.toggle('is-collapsed');
+    if (collapseIcon) {
+      collapseIcon.classList.toggle('rotated', isNowCollapsed);
+    }
+    localStorage.setItem('sidebar_collapsed', isNowCollapsed ? 'true' : 'false');
   }
 
   // Theme Management
@@ -172,30 +194,30 @@
   function renderSidebarNav() {
     let html = '';
     
-    // Regular Categories
+    // Regular Categories (tight, compact spacing)
     navData.categories.forEach(cat => {
       html += `
-        <a href="#${cat.id}" class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-all group">
-          <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-colors">
+        <a href="#${cat.id}" title="${cat.name} (${cat.items.length})" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-all group">
+          <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-colors shrink-0">
             ${getIconSvg(cat.icon, 'w-4 h-4')}
           </span>
-          <span class="truncate flex-1">${cat.name}</span>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-white/5 text-[var(--card-text-secondary)] font-mono">${cat.items.length}</span>
+          <span class="truncate flex-1 sidebar-hide-on-collapse">${cat.name}</span>
+          <span class="text-[11px] px-1.5 py-0.2 rounded-md bg-white/5 text-[var(--card-text-secondary)] font-mono sidebar-hide-on-collapse">${cat.items.length}</span>
         </a>
       `;
     });
 
-    // Encrypted Vault Category in Sidebar
+    // Encrypted Vault Category in Sidebar (compact)
     if (navData.encryptedVault) {
       const v = navData.encryptedVault;
       html += `
-        <div class="pt-3 mt-3 border-t border-[var(--glass-border)]">
-          <a href="#${v.id}" class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10 transition-all group border border-amber-500/20">
-            <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300">
+        <div class="pt-2 mt-2 border-t border-[var(--glass-border)]">
+          <a href="#${v.id}" title="${v.name}" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10 transition-all group border border-amber-500/20">
+            <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 shrink-0">
               ${getIconSvg(isUnlocked ? 'lock-open' : 'lock-closed', 'w-4 h-4')}
             </span>
-            <span class="truncate flex-1">${v.name}</span>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
+            <span class="truncate flex-1 sidebar-hide-on-collapse">${v.name}</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 sidebar-hide-on-collapse">
               ${isUnlocked ? '已解锁' : '加密'}
             </span>
           </a>
@@ -601,6 +623,22 @@
     });
 
     sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+    // Desktop Sidebar Collapse & Expand
+    if (sidebarCollapseBtn) {
+      sidebarCollapseBtn.addEventListener('click', toggleSidebarCollapse);
+    }
+    if (desktopSidebarToggleBtn) {
+      desktopSidebarToggleBtn.addEventListener('click', toggleSidebarCollapse);
+    }
+    if (brandLogoBtn) {
+      brandLogoBtn.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('is-collapsed')) {
+          e.preventDefault();
+          toggleSidebarCollapse();
+        }
+      });
+    }
 
     // Hitokoto Refresh
     hitokotoRefreshBtn.addEventListener('click', fetchHitokoto);

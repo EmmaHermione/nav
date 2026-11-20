@@ -127,3 +127,44 @@ body {
   opacity: 1;
 }
 
+/* Sidebar Collapse Transitions */
+#sidebar {
+  width: 15.5rem;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#sidebar.is-collapsed {
+  width: 4.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+#sidebar.is-collapsed .sidebar-hide-on-collapse {
+  display: none !important;
+}
+
+#sidebar.is-collapsed .sidebar-nav-item {
+  justify-content: center;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+#sidebar.is-collapsed .sidebar-brand {
+  justify-content: center;
+  width: 100%;
+}
+
+#sidebar.is-collapsed #sidebar-collapse-btn {
+  display: none;
+}
+
+#sidebar.is-collapsed .sidebar-bottom-controls {
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+#collapse-icon.rotated {
+  transform: rotate(180deg);
+}
+
+

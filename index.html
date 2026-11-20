@@ -26,63 +26,77 @@
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
 
     <!-- Left Navigation Sidebar -->
-    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-72 glass-sidebar z-50 flex flex-col justify-between p-5 transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
-      <div>
-        <!-- Brand Header -->
-        <div class="flex items-center justify-between pb-5 border-b border-[var(--glass-border)]">
-          <a href="#" class="flex items-center gap-3 group">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-              <span class="font-extrabold text-base tracking-tighter">NAV</span>
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen glass-sidebar z-50 flex flex-col justify-between p-3.5 transition-all duration-300 transform -translate-x-full lg:translate-x-0">
+      <div class="flex flex-col min-h-0 flex-1">
+        <!-- Brand Header with Collapse Toggle -->
+        <div class="flex items-center justify-between pb-3 border-b border-[var(--glass-border)]">
+          <a href="#" id="brand-logo-btn" class="sidebar-brand flex items-center gap-2.5 group overflow-hidden" title="点击展开/回到顶部">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/30 group-hover:scale-105 transition-transform shrink-0">
+              <span class="font-extrabold text-sm tracking-tighter">NAV</span>
             </div>
-            <div>
-              <h1 class="font-bold text-base text-[var(--card-text-primary)] tracking-wide flex items-center gap-1.5">
+            <div class="sidebar-hide-on-collapse overflow-hidden">
+              <h1 class="font-bold text-sm text-[var(--card-text-primary)] tracking-wide flex items-center gap-1.5 truncate">
                 <span>个人导航</span>
-                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
               </h1>
-              <p class="text-[11px] text-[var(--card-text-secondary)] font-mono">Bento Glass Pro</p>
+              <p class="text-[10px] text-[var(--card-text-secondary)] font-mono truncate">Bento Glass Pro</p>
             </div>
           </a>
+
+          <!-- Desktop Collapse/Expand Toggle Button in Sidebar -->
+          <button id="sidebar-collapse-btn" class="hidden lg:flex p-1.5 rounded-lg text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-colors shrink-0" title="收起/展开侧边栏">
+            <svg id="collapse-icon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+            </svg>
+          </button>
         </div>
 
         <!-- Category Links Scroll Area -->
-        <nav class="mt-5 space-y-1 overflow-y-auto max-h-[calc(100vh-230px)] pr-1" id="category-nav-list">
+        <nav class="mt-2.5 space-y-0.5 overflow-y-auto flex-1 pr-0.5" id="category-nav-list">
           <!-- Populated dynamically by JS -->
           <div class="py-4 text-center text-xs text-[var(--card-text-secondary)]">加载分类中...</div>
         </nav>
       </div>
 
       <!-- Bottom Control Bar -->
-      <div class="pt-4 border-t border-[var(--glass-border)] space-y-2">
-        <div class="flex items-center justify-between">
+      <div class="pt-2.5 border-t border-[var(--glass-border)] space-y-2 shrink-0">
+        <div class="sidebar-bottom-controls flex items-center justify-between">
           <!-- Encrypt Tool Button -->
           <button id="open-tool-modal-btn" class="flex items-center gap-1.5 text-xs text-[var(--card-text-secondary)] hover:text-amber-300 p-2 rounded-xl hover:bg-white/5 transition-colors" title="密文分类生成器">
-            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            <span>加密工具箱</span>
+            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span class="sidebar-hide-on-collapse">加密工具箱</span>
           </button>
 
           <!-- Theme Toggle Button -->
           <button id="theme-toggle-btn" class="p-2 rounded-xl text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-colors" title="切换明暗主题">
-            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
           </button>
         </div>
-        <div class="text-[10px] text-[var(--card-text-secondary)] text-center font-mono opacity-60">
+        <div class="sidebar-hide-on-collapse text-[10px] text-[var(--card-text-secondary)] text-center font-mono opacity-60">
           按 <kbd class="px-1 py-0.5 rounded bg-white/10 font-bold text-indigo-400">/</kbd> 快速检索书签
         </div>
       </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 flex flex-col min-w-0 transition-all duration-300">
 
       <!-- Top Header & Search Area -->
-      <header class="sticky top-0 z-30 glass-panel border-x-0 border-t-0 px-4 sm:px-8 py-4">
-        <div class="max-w-6xl mx-auto flex flex-col gap-4">
-          <!-- Top Row: Mobile Nav & Search Bar -->
+      <header class="sticky top-0 z-30 glass-panel border-x-0 border-t-0 px-4 sm:px-8 py-3.5">
+        <div class="max-w-6xl mx-auto flex flex-col gap-3">
+          <!-- Top Row: Mobile Nav, Desktop Toggle & Search Bar -->
           <div class="flex items-center gap-3">
             <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-btn" class="lg:hidden p-2.5 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10" aria-label="打开侧边菜单">
+            <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10" aria-label="打开侧边菜单">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+
+            <!-- Desktop Sidebar Toggle Button in Header (shown when collapsed or as a handy shortcut) -->
+            <button id="desktop-sidebar-toggle-btn" class="hidden lg:flex p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="展开/收起侧边栏">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+              </svg>
             </button>
 
             <!-- Search Bar Container -->
