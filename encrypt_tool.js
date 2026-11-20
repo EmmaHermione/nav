@@ -48,6 +48,6 @@ const output = {
   itemCount: items.length
 };
 
-console.log('=== 加密结果 (复制后替换 links.json 中的 encryptedVault.crypto) ===');
-console.log(JSON.stringify(output, null, 2));
+console.log('=== 加密结果 (直接整段复制替换 links.json 中的 "crypto": { ... }) ===');
+console.log('"crypto": ' + JSON.stringify(output, null, 2));
 console.log('当前密码:', password);

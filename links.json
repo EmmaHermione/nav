@@ -4,7 +4,7 @@
     "subtitle": "探索数字世界的精致起点",
     "logoText": "NAV.",
     "badge": "Bento Pro",
-    "footerText": "© 2026 个人导航 · 极简现代毛玻璃工作台",
+    "footerText": "© 2026 loverorien · 个人导航",
     "author": "Emma",
     "homeUrl": "https://nav.778080.xyz/"
   },
@@ -662,10 +662,10 @@
   ],
   "encryptedVault": {
     "id": "private-vault",
-    "name": "私密专属分类",
+    "name": "私密站点",
     "badge": "AES-256",
     "icon": "lock-closed",
-    "description": "采用金融级 AES-256-GCM 密码学加密，链接不以明文存储，F12 审查完全无泄露风险。",
+    "description": "互联网法外狂徒",
     "isEncrypted": true,
     "crypto": {
       "algorithm": "AES-256-GCM",

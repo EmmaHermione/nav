@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>个人导航 · 极简现代毛玻璃工作台</title>
+  <title>loverorien · 个人导航</title>
   <meta name="description" content="精心雕琢的毛玻璃 Bento 个人导航站点，支持多引擎搜索、即时本地过滤、一言语录与金融级 AES-256-GCM 密码学防 F12 破解私密分类。">
   <link rel="icon" href="https://nav.778080.xyz/assets/images/favicon.svg" type="image/svg+xml">
   <!-- Tailwind CSS -->
@@ -32,7 +32,7 @@
         <div class="flex items-center justify-between pb-3 border-b border-[var(--glass-border)]">
           <a href="#" id="brand-logo-btn" class="sidebar-brand flex items-center gap-2.5 group overflow-hidden" title="点击展开/回到顶部">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/30 group-hover:scale-105 transition-transform shrink-0">
-              <span class="font-extrabold text-sm tracking-tighter">NAV</span>
+              <span class="font-extrabold text-sm tracking-tighter">Nav</span>
             </div>
             <div class="sidebar-hide-on-collapse overflow-hidden">
               <h1 class="font-bold text-sm text-[var(--card-text-primary)] tracking-wide flex items-center gap-1.5 truncate">
@@ -166,8 +166,8 @@
 
       <!-- Footer -->
       <footer class="border-t border-[var(--glass-border)] py-6 text-center text-xs text-[var(--card-text-secondary)] px-4">
-        <p>© 2026 个人导航 · 极简现代毛玻璃工作台</p>
-        <p class="mt-1 opacity-75 font-mono text-[11px]">Powered by Tailwind CSS & Web Crypto AES-256-GCM</p>
+        <p>© 2026 loverorien · 个人导航</p>
+        <p class="mt-1 opacity-75 font-mono text-[11px]">Powered by Tailwind CSS & Gemini</p>
       </footer>
     </main>
   </div>
@@ -179,7 +179,7 @@
         <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-3 shadow-lg">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         </div>
-        <h3 class="text-lg font-bold text-[var(--card-text-primary)]">解锁私密分类</h3>
+        <h3 class="text-lg font-bold text-[var(--card-text-primary)]">解锁私密站点</h3>
         <p class="text-xs text-[var(--card-text-secondary)] mt-1.5">
           采用 AES-256-GCM 密码学解密，密钥不上传且不驻留，F12 审查无明文泄漏。
         </p>
@@ -189,7 +189,7 @@
         <div>
           <label class="block text-xs font-semibold text-[var(--card-text-secondary)] mb-1.5">请输入访问密码</label>
           <div class="relative">
-            <input id="unlock-password-input" type="password" placeholder="默认体验密码: nav778080" class="w-full glass-card rounded-xl px-4 py-3 text-sm text-[var(--card-text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500 border border-[var(--glass-border)] transition-all">
+            <input id="unlock-password-input" type="password" placeholder="默认密码1234567" class="w-full glass-card rounded-xl px-4 py-3 text-sm text-[var(--card-text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500 border border-[var(--glass-border)] transition-all">
             <button id="toggle-password-visibility" type="button" class="absolute right-3 top-3 text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)]">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
@@ -251,7 +251,7 @@
             <label class="text-xs font-semibold text-[var(--card-text-secondary)]">加密密文结果（包含 PBKDF2 盐与 IV）</label>
             <button id="tool-copy-btn" class="text-[11px] text-indigo-400 hover:underline hidden">复制结果</button>
           </div>
-          <textarea id="tool-output" readonly rows="4" placeholder="点击生成后在此处输出，直接替换 links.json 中的 encryptedVault.crypto 节点即可" class="w-full glass-card rounded-xl p-2.5 text-xs font-mono text-[var(--card-text-secondary)] focus:outline-none border border-[var(--glass-border)] bg-black/20"></textarea>
+          <textarea id="tool-output" readonly rows="7" placeholder="点击生成后在此处输出，直接整段替换 links.json 中的 &quot;crypto&quot;: { ... } 即可" class="w-full glass-card rounded-xl p-2.5 text-xs font-mono text-[var(--card-text-secondary)] focus:outline-none border border-[var(--glass-border)] bg-black/20"></textarea>
         </div>
       </div>
     </div>

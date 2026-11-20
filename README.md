@@ -60,14 +60,14 @@ glass-nav/
 1. 点击网页左下角的 **「加密工具箱」** 按钮；
 2. 输入您自设的解锁密码，在下方填入私密书签的 JSON 数组；
 3. 点击 **「一键生成加密密文」**；
-4. 将生成的密文 JSON 替换掉 `links.json` 中的 `encryptedVault.crypto` 节点即可。
+4. 点击「复制结果」，将生成的 `"crypto": { ... }` 整段直接粘贴替换掉 `links.json` 中的 `"crypto": { ... }` 即可。
 
 #### 方式 B：通过命令行运行加密脚本
 在终端中执行：
 ```bash
 node encrypt_tool.js "您的自定义密码"
 ```
-终端将自动打印出加密后的 `salt`、`iv` 与 `ciphertext`，将其复制替换至 `links.json` 即可。
+终端将自动打印出带有 `"crypto": { ... }` 的完整节点，直接复制整段替换至 `links.json` 即可。
 
 ---
 

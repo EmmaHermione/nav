@@ -757,9 +757,9 @@
 
     try {
       const cryptoResult = await encryptVault(password, items);
-      toolOutput.value = JSON.stringify(cryptoResult, null, 2);
+      toolOutput.value = `"crypto": ` + JSON.stringify(cryptoResult, null, 2);
       toolCopyBtn.classList.remove('hidden');
-      showToast('✅ 加密密文生成成功！请复制更新到 links.json', 'success');
+      showToast('✅ 加密密文生成成功！可直接整段替换 links.json 中的 crypto 节点', 'success');
     } catch (err) {
       showToast('加密失败: ' + err.message, 'error');
     } finally {
