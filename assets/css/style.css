@@ -189,5 +189,10 @@ body {
   color: #c7d2fe !important;
 }
 
+/* Only show desktop sidebar toggle button when sidebar is collapsed */
+#sidebar:not(.is-collapsed) ~ main #desktop-sidebar-toggle-btn {
+  display: none !important;
+}
+
 
 

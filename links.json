@@ -14,7 +14,7 @@
     },
     "logoText": "NAV.",
     "badge": "Bento Pro",
-    "footerText": "© 2026 loverorien · 个人导航",
+    "footerText": "© 2026 loverorien",
     "author": "Emma",
     "homeUrl": "https://nav.778080.xyz/"
   },
@@ -45,7 +45,7 @@
     },
     {
       "id": "zlibrary",
-      "name": "zlibrary",
+      "name": "Z-Library",
       "url": "https://z-library.ec/s/",
       "placeholder": "在 Z-Library 检索电子书籍与学术论文..."
     }
@@ -56,7 +56,6 @@
       "name": "我的站点",
       "badge": "Personal",
       "icon": "home",
-      "description": "个人核心博客、主页与自建服务直达",
       "items": [
         {
           "title": "loverorien",
@@ -89,7 +88,6 @@
       "name": "影音与阅读",
       "badge": "Media",
       "icon": "film",
-      "description": "电影史经典榜单、数字阅读与多媒体探索",
       "items": [
         {
           "title": "视与听 Top 250",
@@ -182,7 +180,6 @@
       "name": "旅行与生活",
       "badge": "Life",
       "icon": "compass",
-      "description": "全球地图导航、特价机票与酒店住宿预订",
       "items": [
         {
           "title": "Google Maps",
@@ -257,7 +254,6 @@
       "name": "社媒与资讯",
       "badge": "News",
       "icon": "newspaper",
-      "description": "独立深度报道、科技动态与全网新闻聚合",
       "items": [
         {
           "title": "数字时代",
@@ -326,7 +322,6 @@
       "name": "开发与运维",
       "badge": "DevOps",
       "icon": "server",
-      "description": "全球边缘托管、容器云与开发者基础设施",
       "items": [
         {
           "title": "Vercel",
@@ -389,7 +384,6 @@
       "name": "网络与测绘",
       "badge": "Security",
       "icon": "shield-check",
-      "description": "网络空间测绘引擎、性能检测与优选节点",
       "items": [
         {
           "title": "Censys Search",
@@ -476,7 +470,6 @@
       "name": "设计与素材",
       "badge": "Design",
       "icon": "photo",
-      "description": "高清壁纸库、矢量图标、字体与设计灵感",
       "items": [
         {
           "title": "PicProse",
@@ -593,7 +586,6 @@
       "name": "效率与 AI 工具",
       "badge": "Tools",
       "icon": "sparkles",
-      "description": "AI 助手、语音合成 TTS 与实用在线工具箱",
       "items": [
         {
           "title": "Tracking AI",
@@ -644,18 +636,6 @@
           "icon": "https://api.xinac.net/icon/?url=https://www.ymsms.xyz"
         },
         {
-          "title": "F95zone",
-          "url": "https://f95zone.to/",
-          "description": "点击访问网站",
-          "icon": "https://api.xinac.net/icon/?url=https://f95zone.to/"
-        },
-        {
-          "title": "CMA",
-          "url": "https://www.celebritymoviearchive.com/",
-          "description": "🫣",
-          "icon": "https://api.xinac.net/icon/?url=https://celebritymoviearchive.com"
-        },
-        {
           "title": "EFFED UP MOVIES",
           "url": "https://www.effedupmovies.com/",
           "description": "警告警告警告",
@@ -684,7 +664,7 @@
       "salt": "fcdcb4eeac272387aa86b9c7f137b839",
       "iv": "3ad643193a99a9073a1f8f6b",
       "ciphertext": "1731a7bef0332fe7e6a31d15f0116bd3e20038e7bab3648fd30dcf4b0b70b61dd0e3fe5a09190cd2e438c2ecf5120d62715416fb657e8d9f1e31b3bf84f04f34a69194e7ce69730e18be2fa758e3e4096b94ca537acd23a09686eb12a7abe68ec12e8d617893251b36a55efcbcadacece5bd76cb6084549a157fb0a49bbb1a329558fdcbdcada144271c47bb5d7573e53e11581fa12e11ad7bdc910a34b5b2b87c8e0a43",
-     "itemCount": 1
+      "itemCount": 1
     }
   }
 }
