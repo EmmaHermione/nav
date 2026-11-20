@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>个人导航 · 极简现代毛玻璃工作台</title>
+  <meta name="description" content="精心雕琢的毛玻璃 Bento 个人导航站点，支持多引擎搜索、即时本地过滤、一言语录与金融级 AES-256-GCM 密码学防 F12 破解私密分类。">
+  <link rel="icon" href="https://nav.778080.xyz/assets/images/favicon.svg" type="image/svg+xml">
+  <!-- Tailwind CSS -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- Custom Glassmorphism Styles -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Ambient Glow Background Orbs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-float-slow"></div>
+    <div class="absolute top-1/3 -right-40 w-[30rem] h-[30rem] bg-purple-600/15 rounded-full blur-3xl animate-float-slow" style="animation-delay: -5s;"></div>
+    <div class="absolute -bottom-40 left-1/3 w-[28rem] h-[28rem] bg-blue-600/15 rounded-full blur-3xl animate-float-slow" style="animation-delay: -2s;"></div>
+  </div>
+
+  <div class="flex min-h-screen">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- Left Navigation Sidebar -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-72 glass-sidebar z-50 flex flex-col justify-between p-5 transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
+      <div>
+        <!-- Brand Header -->
+        <div class="flex items-center justify-between pb-5 border-b border-[var(--glass-border)]">
+          <a href="#" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+              <span class="font-extrabold text-base tracking-tighter">NAV</span>
+            </div>
+            <div>
+              <h1 class="font-bold text-base text-[var(--card-text-primary)] tracking-wide flex items-center gap-1.5">
+                <span>个人导航</span>
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              </h1>
+              <p class="text-[11px] text-[var(--card-text-secondary)] font-mono">Bento Glass Pro</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Category Links Scroll Area -->
+        <nav class="mt-5 space-y-1 overflow-y-auto max-h-[calc(100vh-230px)] pr-1" id="category-nav-list">
+          <!-- Populated dynamically by JS -->
+          <div class="py-4 text-center text-xs text-[var(--card-text-secondary)]">加载分类中...</div>
+        </nav>
+      </div>
+
+      <!-- Bottom Control Bar -->
+      <div class="pt-4 border-t border-[var(--glass-border)] space-y-2">
+        <div class="flex items-center justify-between">
+          <!-- Encrypt Tool Button -->
+          <button id="open-tool-modal-btn" class="flex items-center gap-1.5 text-xs text-[var(--card-text-secondary)] hover:text-amber-300 p-2 rounded-xl hover:bg-white/5 transition-colors" title="密文分类生成器">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>加密工具箱</span>
+          </button>
+
+          <!-- Theme Toggle Button -->
+          <button id="theme-toggle-btn" class="p-2 rounded-xl text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-colors" title="切换明暗主题">
+            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          </button>
+        </div>
+        <div class="text-[10px] text-[var(--card-text-secondary)] text-center font-mono opacity-60">
+          按 <kbd class="px-1 py-0.5 rounded bg-white/10 font-bold text-indigo-400">/</kbd> 快速检索书签
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0">
+
+      <!-- Top Header & Search Area -->
+      <header class="sticky top-0 z-30 glass-panel border-x-0 border-t-0 px-4 sm:px-8 py-4">
+        <div class="max-w-6xl mx-auto flex flex-col gap-4">
+          <!-- Top Row: Mobile Nav & Search Bar -->
+          <div class="flex items-center gap-3">
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" class="lg:hidden p-2.5 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10" aria-label="打开侧边菜单">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+
+            <!-- Search Bar Container -->
+            <div class="flex-1 relative">
+              <div class="glass-panel rounded-2xl flex items-center px-3 py-1.5 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all shadow-lg">
+                <!-- Search Engine Selector -->
+                <div class="relative">
+                  <button id="engine-selector-btn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-xs font-semibold text-[var(--card-text-primary)] transition-colors">
+                    <span id="current-engine-name">Google</span>
+                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                  </button>
+
+                  <!-- Engine Dropdown -->
+                  <div id="engine-dropdown" class="hidden absolute top-full left-0 mt-2 w-36 glass-panel rounded-xl py-1.5 z-40 shadow-xl">
+                    <div class="engine-option px-3 py-2 text-xs text-[var(--card-text-primary)] hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer flex items-center justify-between" data-engine="google" data-name="Google" data-placeholder="使用 Google 搜索全网...">
+                      <span>Google</span>
+                    </div>
+                    <div class="engine-option px-3 py-2 text-xs text-[var(--card-text-primary)] hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer flex items-center justify-between" data-engine="baidu" data-name="百度" data-placeholder="使用百度搜索...">
+                      <span>百度</span>
+                    </div>
+                    <div class="engine-option px-3 py-2 text-xs text-[var(--card-text-primary)] hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer flex items-center justify-between" data-engine="bing" data-name="Bing" data-placeholder="使用微软必应搜索...">
+                      <span>Bing</span>
+                    </div>
+                    <div class="engine-option px-3 py-2 text-xs text-[var(--card-text-primary)] hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer flex items-center justify-between" data-engine="github" data-name="GitHub" data-placeholder="搜索开源项目与仓库...">
+                      <span>GitHub</span>
+                    </div>
+                    <div class="engine-option px-3 py-2 text-xs text-[var(--card-text-primary)] hover:bg-indigo-500/20 hover:text-indigo-300 cursor-pointer flex items-center justify-between" data-engine="bilibili" data-name="B站" data-placeholder="搜索哔哩哔哩视频...">
+                      <span>Bilibili</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="h-5 w-[1px] bg-[var(--glass-border)] mx-1"></div>
+
+                <!-- Input -->
+                <input id="search-input" type="text" autocomplete="off" placeholder="使用 Google 搜索全网，或输入关键词即时过滤书签..." class="w-full bg-transparent border-0 px-2.5 py-1 text-sm text-[var(--card-text-primary)] placeholder-[var(--card-text-secondary)] focus:outline-none">
+
+                <!-- Clear Button -->
+                <button id="search-clear-btn" class="hidden p-1 rounded-md text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] mr-1" title="清空搜索">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+
+                <!-- Shortcut Badge -->
+                <kbd class="hidden sm:inline-block text-[11px] font-mono px-2 py-0.5 rounded-lg bg-white/5 border border-[var(--glass-border)] text-[var(--card-text-secondary)] select-none">
+                  /
+                </kbd>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 1: Hitokoto (一言) Card -->
+          <div class="glass-card rounded-2xl px-4 py-2.5 flex items-center justify-between gap-3 border-indigo-500/10">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+              <span class="p-1 rounded-lg bg-indigo-500/10 text-indigo-400 shrink-0">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+              </span>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 overflow-hidden text-xs">
+                <span id="hitokoto-text" class="text-[var(--card-text-primary)] font-medium truncate transition-opacity duration-200">正在获取一言...</span>
+                <span id="hitokoto-from" class="text-[var(--card-text-secondary)] text-[11px] truncate opacity-80 transition-opacity duration-200">—— 个人导航</span>
+              </div>
+            </div>
+            <button id="hitokoto-refresh-btn" class="p-1.5 rounded-lg text-[var(--card-text-secondary)] hover:text-indigo-400 hover:bg-white/5 transition-all shrink-0" title="换一则一言">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Bookmarks Content Sections -->
+      <div class="flex-1 px-4 sm:px-6 lg:px-8 py-5 max-w-[1520px] mx-auto w-full" id="main-content">
+        <!-- Rendered dynamically by app.js -->
+        <div class="text-center py-20 text-sm text-[var(--card-text-secondary)]">
+          正在加载导航书签...
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="border-t border-[var(--glass-border)] py-6 text-center text-xs text-[var(--card-text-secondary)] px-4">
+        <p>© 2026 个人导航 · 极简现代毛玻璃工作台</p>
+        <p class="mt-1 opacity-75 font-mono text-[11px]">Powered by Tailwind CSS & Web Crypto AES-256-GCM</p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Feature 2: Unlock Password Modal (AES-256-GCM Decryption) -->
+  <div id="unlock-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 max-w-md w-full border-amber-500/30 shadow-2xl relative">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-[var(--card-text-primary)]">解锁私密分类</h3>
+        <p class="text-xs text-[var(--card-text-secondary)] mt-1.5">
+          采用 AES-256-GCM 密码学解密，密钥不上传且不驻留，F12 审查无明文泄漏。
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-[var(--card-text-secondary)] mb-1.5">请输入访问密码</label>
+          <div class="relative">
+            <input id="unlock-password-input" type="password" placeholder="默认体验密码: nav778080" class="w-full glass-card rounded-xl px-4 py-3 text-sm text-[var(--card-text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500 border border-[var(--glass-border)] transition-all">
+            <button id="toggle-password-visibility" type="button" class="absolute right-3 top-3 text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button id="unlock-cancel-btn" type="button" class="flex-1 py-2.5 rounded-xl border border-[var(--glass-border)] text-xs font-medium text-[var(--card-text-secondary)] hover:bg-white/5 transition-colors">
+            取消
+          </button>
+          <button id="unlock-submit-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold shadow-lg shadow-amber-500/25 transition-all">
+            确定解锁
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Encrypt Tool Modal (For Site Owner to generate new encrypted ciphertext) -->
+  <div id="tool-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 max-w-lg w-full border-indigo-500/30 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-[var(--glass-border)] mb-4">
+        <div class="flex items-center gap-2.5">
+          <span class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </span>
+          <div>
+            <h3 class="text-base font-bold text-[var(--card-text-primary)]">私密书签加密生成器</h3>
+            <p class="text-xs text-[var(--card-text-secondary)]">站长可在此加密新书签并贴入 links.json</p>
+          </div>
+        </div>
+        <button id="tool-close-btn" class="p-1.5 rounded-lg hover:bg-white/10 text-[var(--card-text-secondary)]">✕</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-[var(--card-text-secondary)] mb-1">自定义解锁密码</label>
+          <input id="tool-password-input" type="text" placeholder="输入你要设定的私密分类密码" class="w-full glass-card rounded-xl px-3.5 py-2 text-xs text-[var(--card-text-primary)] focus:outline-none focus:ring-1 focus:ring-indigo-500 border border-[var(--glass-border)]">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[var(--card-text-secondary)] mb-1">私密书签 JSON 列表</label>
+          <textarea id="tool-json-input" rows="6" class="w-full glass-card rounded-xl p-3 text-xs font-mono text-[var(--card-text-primary)] focus:outline-none focus:ring-1 focus:ring-indigo-500 border border-[var(--glass-border)]">[
+  {
+    "title": "私有云盘",
+    "url": "https://nas.example.com",
+    "description": "私有存储中心",
+    "icon": ""
+  }
+]</textarea>
+        </div>
+
+        <button id="tool-generate-btn" type="button" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition-colors shadow-lg shadow-indigo-600/30">
+          一键生成加密密文
+        </button>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-semibold text-[var(--card-text-secondary)]">加密密文结果（包含 PBKDF2 盐与 IV）</label>
+            <button id="tool-copy-btn" class="text-[11px] text-indigo-400 hover:underline hidden">复制结果</button>
+          </div>
+          <textarea id="tool-output" readonly rows="4" placeholder="点击生成后在此处输出，直接替换 links.json 中的 encryptedVault.crypto 节点即可" class="w-full glass-card rounded-xl p-2.5 text-xs font-mono text-[var(--card-text-secondary)] focus:outline-none border border-[var(--glass-border)] bg-black/20"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Application Logic -->
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
