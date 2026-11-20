@@ -177,4 +177,17 @@ body {
   transform: rotate(180deg);
 }
 
+/* Active State for Sidebar ScrollSpy */
+.sidebar-nav-item.active {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: var(--card-text-primary) !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
+}
+.sidebar-nav-item.active .sidebar-icon-badge {
+  background: rgba(99, 102, 241, 0.35) !important;
+  color: #c7d2fe !important;
+}
+
+
 

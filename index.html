@@ -10,6 +10,10 @@
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <!-- Custom Glassmorphism Styles -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#030712">
 </head>
 <body class="antialiased selection:bg-indigo-500 selection:text-white">
 
@@ -181,7 +185,7 @@
         </div>
         <h3 class="text-lg font-bold text-[var(--card-text-primary)]">解锁私密站点</h3>
         <p class="text-xs text-[var(--card-text-secondary)] mt-1.5">
-          采用 AES-256-GCM 密码学解密，密钥不上传且不驻留，F12 审查无明文泄漏。
+          采用 AES-256-GCM 对称加密，基于 Web Crypto API 实现。
         </p>
       </div>
 
@@ -257,8 +261,15 @@
     </div>
   </div>
 
+  <!-- Floating Back to Top Button -->
+  <button id="back-to-top-btn" class="fixed bottom-6 right-6 z-40 p-2.5 rounded-2xl glass-card text-indigo-400 hover:text-white hover:bg-indigo-600/80 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 transform translate-y-3 flex items-center justify-center border border-[var(--glass-border)] cursor-pointer" title="回到顶部">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+    </svg>
+  </button>
+
   <!-- Toast Container -->
-  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <div id="toast-container" class="fixed bottom-20 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- Application Logic -->
   <script src="./assets/js/app.js"></script>

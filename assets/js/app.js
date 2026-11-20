@@ -32,6 +32,8 @@
   const hitokotoText = document.getElementById('hitokoto-text');
   const hitokotoFrom = document.getElementById('hitokoto-from');
   const hitokotoRefreshBtn = document.getElementById('hitokoto-refresh-btn');
+  const backToTopBtn = document.getElementById('back-to-top-btn');
+  let scrollSpyObserver = null;
 
   // Vault Modal Elements
   const unlockModal = document.getElementById('unlock-modal');
@@ -229,7 +231,7 @@
     navData.categories.forEach(cat => {
       html += `
         <a href="#${cat.id}" title="${cat.name} (${cat.items.length})" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-all group">
-          <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-colors shrink-0">
+          <span class="sidebar-icon-badge p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-colors shrink-0">
             ${getIconSvg(cat.icon, 'w-4 h-4')}
           </span>
           <span class="truncate flex-1 sidebar-hide-on-collapse">${cat.name}</span>
@@ -244,7 +246,7 @@
       html += `
         <div class="pt-2 mt-2 border-t border-[var(--glass-border)]">
           <a href="#${v.id}" title="${v.name}" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10 transition-all group border border-amber-500/20">
-            <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 shrink-0">
+            <span class="sidebar-icon-badge p-1.5 rounded-lg bg-amber-500/20 text-amber-300 shrink-0">
               ${getIconSvg(isUnlocked ? 'lock-open' : 'lock-closed', 'w-4 h-4')}
             </span>
             <span class="truncate flex-1 sidebar-hide-on-collapse">${v.name}</span>
@@ -301,21 +303,69 @@
 
     mainContent.innerHTML = html;
     attachCardListeners();
+    initScrollSpy();
+  }
+
+  // Deterministic colorful gradient palettes for bookmark icons without image
+  function getInitialBadgeStyle(text) {
+    const palettes = [
+      { bg: 'from-emerald-500/20 to-teal-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
+      { bg: 'from-blue-500/20 to-indigo-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
+      { bg: 'from-purple-500/20 to-pink-500/20', text: 'text-purple-400', border: 'border-purple-500/30' },
+      { bg: 'from-amber-500/20 to-orange-500/20', text: 'text-amber-400', border: 'border-amber-500/30' },
+      { bg: 'from-rose-500/20 to-red-500/20', text: 'text-rose-400', border: 'border-rose-500/30' },
+      { bg: 'from-cyan-500/20 to-sky-500/20', text: 'text-cyan-400', border: 'border-cyan-500/30' }
+    ];
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      hash = text.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const idx = Math.abs(hash) % palettes.length;
+    return palettes[idx];
+  }
+
+  function initScrollSpy() {
+    if (scrollSpyObserver) {
+      scrollSpyObserver.disconnect();
+    }
+    const sections = document.querySelectorAll('.category-section');
+    if (!sections.length) return;
+
+    scrollSpyObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+            const href = item.getAttribute('href');
+            if (href === `#${id}`) {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, {
+      rootMargin: '-10% 0px -75% 0px'
+    });
+
+    sections.forEach(sec => scrollSpyObserver.observe(sec));
   }
 
   function renderBookmarkCard(item) {
     const initial = (item.title || 'U').charAt(0).toUpperCase();
     const domain = getDomain(item.url);
+    const badge = getInitialBadgeStyle(item.title || 'U');
 
     return `
       <div class="bookmark-card glass-card rounded-xl px-2.5 py-2 sm:px-3 sm:py-2.5 flex items-center justify-between gap-2.5 group relative overflow-hidden transition-all duration-200" data-title="${escapeHtml(item.title)}" data-desc="${escapeHtml(item.description)}" data-url="${escapeHtml(item.url)}">
         <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 flex-1 min-w-0" title="${escapeHtml(item.title)}${item.description ? ' - ' + escapeHtml(item.description) : ''}">
-          <!-- Compact Icon -->
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+          <!-- Compact Icon with Colorful Initial Fallback -->
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr ${badge.bg} border ${badge.border} flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
             ${
               item.icon && !item.icon.includes('avatar.png')
-                ? `<img src="${item.icon}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'font-bold text-xs text-indigo-300\\'>${initial}</span>';">`
-                : `<span class="font-bold text-xs text-indigo-300">${initial}</span>`
+                ? `<img src="${item.icon}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'font-bold text-xs ${badge.text}\\'>${initial}</span>';">`
+                : `<span class="font-bold text-xs ${badge.text}">${initial}</span>`
             }
           </div>
           <!-- Title & Single Line Description -->
@@ -577,6 +627,38 @@
         section.style.display = visibleCards.length > 0 ? 'block' : 'none';
       }
     });
+
+    // Empty state handling when no local bookmarks match
+    let emptyStateEl = document.getElementById('search-empty-state');
+    if (!emptyStateEl) {
+      emptyStateEl = document.createElement('div');
+      emptyStateEl.id = 'search-empty-state';
+      mainContent.appendChild(emptyStateEl);
+    }
+
+    if (query && matchCount === 0) {
+      const engines = navData?.searchEngines || [];
+      const targetEngine = engines.find(e => e.id === activeEngine) || engines[0];
+      const engineName = targetEngine ? targetEngine.name : '搜索引擎';
+      emptyStateEl.className = 'py-10 px-4 text-center glass-card rounded-2xl border-white/10 max-w-md mx-auto my-6';
+      emptyStateEl.innerHTML = `
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto mb-3 text-lg">
+          🔍
+        </div>
+        <h4 class="text-sm font-semibold text-[var(--card-text-primary)]">未找到匹配 “${escapeHtml(query)}” 的书签</h4>
+        <p class="text-xs text-[var(--card-text-secondary)] mt-1.5 leading-relaxed">
+          按 <kbd class="px-1.5 py-0.5 rounded bg-white/10 font-bold text-indigo-400">Enter 回车</kbd> 直接使用 ${engineName} 全网检索
+        </p>
+        <button type="button" id="empty-state-search-btn" class="mt-4 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md transition-all cursor-pointer">
+          使用 ${engineName} 全网搜索
+        </button>
+      `;
+      emptyStateEl.style.display = 'block';
+      const btn = emptyStateEl.querySelector('#empty-state-search-btn');
+      if (btn) btn.onclick = handleSearchSubmit;
+    } else {
+      emptyStateEl.style.display = 'none';
+    }
   }
 
   function handleSearchSubmit() {
@@ -663,6 +745,30 @@
 
     // Hitokoto Refresh
     hitokotoRefreshBtn.addEventListener('click', fetchHitokoto);
+
+    // Floating Back to Top Button
+    if (backToTopBtn) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 250) {
+          backToTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+        } else {
+          backToTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+        }
+      });
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // Anti-shoulder-surfing auto re-lock on page hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && isUnlocked) {
+        isUnlocked = false;
+        decryptedItems = null;
+        renderAll();
+        showToast('🛡️ 为保护隐私，私密分类已在离开页面时自动重新上锁', 'info');
+      }
+    });
 
     // Unlock Modal logic
     unlockSubmitBtn.addEventListener('click', submitUnlock);

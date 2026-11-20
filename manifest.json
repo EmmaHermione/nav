@@ -1,0 +1,17 @@
+{
+  "name": "个人导航 · Bento Glass Pro",
+  "short_name": "个人导航",
+  "description": "极简现代毛玻璃个人导航工作台",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "icons": [
+    {
+      "src": "https://nav.778080.xyz/assets/images/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
