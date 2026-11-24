@@ -40,6 +40,7 @@
   let scrollLockTargetId = null;
   let scrollLockTimer = null;
   let settledPinY = null;
+  let currentActiveCategoryId = null;
 
   // Vault Modal Elements
   const unlockModal = document.getElementById('unlock-modal');
@@ -364,7 +365,7 @@
         scrollLockTargetId = targetId;
         settledPinY = null;
         if (scrollLockTimer) clearTimeout(scrollLockTimer);
-        setActiveSidebarItem(targetId);
+        setActiveSidebarItem(targetId, true);
 
         const offset = getHeaderScrollOffset();
         const targetTop = Math.max(0, window.scrollY + targetEl.getBoundingClientRect().top - offset);
@@ -416,6 +417,7 @@
     }
 
     mainContent.innerHTML = html;
+    currentActiveCategoryId = null;
     attachCardListeners();
     initScrollSpy();
   }
@@ -446,8 +448,10 @@
     return 20;
   }
 
-  function setActiveSidebarItem(id) {
+  function setActiveSidebarItem(id, force = false) {
     if (!id) return;
+    if (!force && id === currentActiveCategoryId) return;
+    currentActiveCategoryId = id;
     document.querySelectorAll('.sidebar-nav-item').forEach(item => {
       const isMatch = item.getAttribute('href') === `#${id}`;
       item.classList.toggle('active', isMatch);
@@ -514,6 +518,17 @@
         if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
           if (document.activeElement !== searchInput && document.activeElement !== unlockPasswordInput) {
             releaseScrollPin();
+          }
+        }
+      });
+
+      window.addEventListener('scrollend', () => {
+        if (scrollLockTargetId) {
+          scrollLockTargetId = null;
+          settledPinY = window.scrollY;
+          if (scrollLockTimer) {
+            clearTimeout(scrollLockTimer);
+            scrollLockTimer = null;
           }
         }
       });
@@ -918,7 +933,7 @@
         } else {
           backToTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
         }
-      });
+      }, { passive: true });
       backToTopBtn.addEventListener('click', () => {
         scrollLockTargetId = null;
         settledPinY = null;
