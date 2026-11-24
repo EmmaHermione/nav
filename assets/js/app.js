@@ -35,7 +35,11 @@
   const hitokotoFrom = document.getElementById('hitokoto-from');
   const hitokotoRefreshBtn = document.getElementById('hitokoto-refresh-btn');
   const backToTopBtn = document.getElementById('back-to-top-btn');
-  let scrollSpyObserver = null;
+  let scrollSpyInitialized = false;
+  let scrollSpyTicking = false;
+  let scrollLockTargetId = null;
+  let scrollLockTimer = null;
+  let settledPinY = null;
 
   // Vault Modal Elements
   const unlockModal = document.getElementById('unlock-modal');
@@ -309,7 +313,7 @@
     // Regular Categories (tight, compact spacing)
     navData.categories.forEach(cat => {
       html += `
-        <a href="#${cat.id}" title="${cat.name} (${cat.items.length})" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-all group">
+        <a href="#${cat.id}" title="${cat.name} (${cat.items.length})" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-all group border border-transparent">
           <span class="sidebar-icon-badge p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300 transition-colors shrink-0">
             ${getIconSvg(cat.icon, 'w-4 h-4')}
           </span>
@@ -324,12 +328,12 @@
       const v = navData.encryptedVault;
       html += `
         <div class="pt-2 mt-2 border-t border-[var(--glass-border)]">
-          <a href="#${v.id}" title="${v.name}" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10 transition-all group border border-amber-500/20">
-            <span class="sidebar-icon-badge p-1.5 rounded-lg bg-amber-500/20 text-amber-300 shrink-0">
+          <a href="#${v.id}" title="${v.name}" class="sidebar-nav-item sidebar-vault-item flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-medium text-amber-500 dark:text-amber-300/90 hover:text-amber-600 dark:hover:text-amber-200 hover:bg-amber-500/10 transition-all group border border-amber-500/25">
+            <span class="sidebar-icon-badge p-1.5 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-300 shrink-0">
               ${getIconSvg(isUnlocked ? 'lock-open' : 'lock-closed', 'w-4 h-4')}
             </span>
             <span class="truncate flex-1 sidebar-hide-on-collapse">${v.name}</span>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 sidebar-hide-on-collapse">
+            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 dark:text-amber-300 sidebar-hide-on-collapse">
               ${isUnlocked ? '已解锁' : '加密'}
             </span>
           </a>
@@ -339,10 +343,41 @@
 
     categoryNavList.innerHTML = html;
 
-    // Attach click for smooth scrolling and mobile drawer auto-close
+    // Smooth scroll + exact active lock on sidebar click
     categoryNavList.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', (e) => {
+        const href = a.getAttribute('href') || '';
         closeMobileSidebar();
+        if (!href.startsWith('#')) return;
+        const targetId = href.slice(1);
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+
+        e.preventDefault();
+
+        // If search filter hid this category, clear filter first
+        if (targetEl.style.display === 'none' && searchInput && searchInput.value.trim()) {
+          searchInput.value = '';
+          handleSearchInput();
+        }
+
+        scrollLockTargetId = targetId;
+        settledPinY = null;
+        if (scrollLockTimer) clearTimeout(scrollLockTimer);
+        setActiveSidebarItem(targetId);
+
+        const offset = getHeaderScrollOffset();
+        const targetTop = Math.max(0, window.scrollY + targetEl.getBoundingClientRect().top - offset);
+        window.scrollTo({ top: targetTop, behavior: 'smooth' });
+
+        if (history.replaceState) {
+          history.replaceState(null, '', `#${targetId}`);
+        }
+
+        scrollLockTimer = setTimeout(() => {
+          scrollLockTargetId = null;
+          settledPinY = window.scrollY;
+        }, 850);
       });
     });
   }
@@ -352,7 +387,7 @@
 
     navData.categories.forEach(cat => {
       html += `
-        <section id="${cat.id}" class="category-section scroll-mt-24 mb-6">
+        <section id="${cat.id}" class="category-section scroll-mt-16 lg:scroll-mt-5 mb-6">
           <div class="flex items-center justify-between mb-3 pb-1.5 border-b border-[var(--glass-border)]">
             <div class="flex items-center gap-2.5">
               <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
@@ -403,32 +438,105 @@
     return palettes[idx];
   }
 
-  function initScrollSpy() {
-    if (scrollSpyObserver) {
-      scrollSpyObserver.disconnect();
+  function getHeaderScrollOffset() {
+    if (window.innerWidth < 1024) {
+      const mobileHeader = document.querySelector('main > header');
+      return (mobileHeader ? mobileHeader.offsetHeight : 56) + 12;
     }
-    const sections = document.querySelectorAll('.category-section');
+    return 20;
+  }
+
+  function setActiveSidebarItem(id) {
+    if (!id) return;
+    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+      const isMatch = item.getAttribute('href') === `#${id}`;
+      item.classList.toggle('active', isMatch);
+      if (isMatch && categoryNavList) {
+        const navRect = categoryNavList.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        if (itemRect.top < navRect.top) {
+          categoryNavList.scrollTop -= (navRect.top - itemRect.top) + 6;
+        } else if (itemRect.bottom > navRect.bottom) {
+          categoryNavList.scrollTop += (itemRect.bottom - navRect.bottom) + 6;
+        }
+      }
+    });
+  }
+
+  function updateActiveCategoryOnScroll() {
+    const sections = Array.from(document.querySelectorAll('.category-section'))
+      .filter(sec => sec.offsetParent !== null);
     if (!sections.length) return;
 
-    scrollSpyObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('id');
-          document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-            const href = item.getAttribute('href');
-            if (href === `#${id}`) {
-              item.classList.add('active');
-            } else {
-              item.classList.remove('active');
-            }
-          });
+    const scrollTop = window.scrollY;
+    const viewportHeight = window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop <= 30) {
+      setActiveSidebarItem(sections[0].id);
+      return;
+    }
+
+    if (scrollTop + viewportHeight >= docHeight - 8) {
+      setActiveSidebarItem(sections[sections.length - 1].id);
+      return;
+    }
+
+    const triggerY = getHeaderScrollOffset() + 80;
+    let activeId = sections[0].id;
+    for (let i = 0; i < sections.length; i++) {
+      const rect = sections[i].getBoundingClientRect();
+      if (rect.top <= triggerY) {
+        activeId = sections[i].id;
+      } else {
+        break;
+      }
+    }
+    setActiveSidebarItem(activeId);
+  }
+
+  function initScrollSpy() {
+    if (!scrollSpyInitialized) {
+      scrollSpyInitialized = true;
+
+      const releaseScrollPin = () => {
+        scrollLockTargetId = null;
+        settledPinY = null;
+        if (scrollLockTimer) {
+          clearTimeout(scrollLockTimer);
+          scrollLockTimer = null;
+        }
+      };
+
+      window.addEventListener('wheel', releaseScrollPin, { passive: true });
+      window.addEventListener('touchstart', releaseScrollPin, { passive: true });
+      window.addEventListener('keydown', (e) => {
+        if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+          if (document.activeElement !== searchInput && document.activeElement !== unlockPasswordInput) {
+            releaseScrollPin();
+          }
         }
       });
-    }, {
-      rootMargin: '-10% 0px -75% 0px'
-    });
 
-    sections.forEach(sec => scrollSpyObserver.observe(sec));
+      window.addEventListener('scroll', () => {
+        if (scrollLockTargetId) return;
+        if (settledPinY !== null) {
+          if (Math.abs(window.scrollY - settledPinY) <= 12) return;
+          settledPinY = null;
+        }
+        if (!scrollSpyTicking) {
+          scrollSpyTicking = true;
+          requestAnimationFrame(() => {
+            updateActiveCategoryOnScroll();
+            scrollSpyTicking = false;
+          });
+        }
+      }, { passive: true });
+    }
+
+    if (!scrollLockTargetId && settledPinY === null) {
+      updateActiveCategoryOnScroll();
+    }
   }
 
   function renderBookmarkCard(item) {
@@ -471,7 +579,7 @@
     const v = navData.encryptedVault;
     if (isUnlocked && decryptedItems) {
       return `
-        <section id="${v.id}" class="category-section scroll-mt-24 mb-6">
+        <section id="${v.id}" class="category-section scroll-mt-16 lg:scroll-mt-5 mb-6">
           <div class="flex items-center justify-between mb-3 pb-1.5 border-b border-amber-500/30">
             <div class="flex items-center gap-2.5">
               <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">
@@ -502,7 +610,7 @@
 
     // Locked State
     return `
-      <section id="${v.id}" class="category-section scroll-mt-24 mb-6">
+      <section id="${v.id}" class="category-section scroll-mt-16 lg:scroll-mt-5 mb-6">
         <div class="glass-card rounded-2xl p-4 sm:p-5 border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-transparent to-purple-500/5 relative overflow-hidden">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
@@ -691,6 +799,10 @@
     } else {
       emptyStateEl.style.display = 'none';
     }
+
+    if (!scrollLockTargetId && settledPinY === null) {
+      updateActiveCategoryOnScroll();
+    }
   }
 
   function handleSearchSubmit() {
@@ -808,6 +920,8 @@
         }
       });
       backToTopBtn.addEventListener('click', () => {
+        scrollLockTargetId = null;
+        settledPinY = null;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
