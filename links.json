@@ -61,7 +61,7 @@
           "title": "loverorien",
           "url": "https://nav.778080.xyz/",
           "description": "个人主页",
-          "icon": "assets/images/logos/assets/images/favicon.jpg"
+          "icon": "assets/images/favicon.jpg"
         },
         {
           "title": "吃灰博客",
@@ -163,15 +163,9 @@
         },
         {
           "title": "磁力熊",
-          "url": "https://www.cilixiong.com/",
+          "url": "https://www.cilixiong.org/",
           "description": "纯净的1080P高分电影",
-          "icon": "https://api.xinac.net/icon/?url=https://cilixiong.com"
-        },
-        {
-          "title": "饭太硬",
-          "url": "https://www.xn--sss604efuw.com/",
-          "description": "TVbox相关",
-          "icon": "https://api.xinac.net/icon/?url=https://xn--sss604efuw.com"
+          "icon": "https://api.xinac.net/icon/?url=https://cilixiong.org"
         }
       ]
     },

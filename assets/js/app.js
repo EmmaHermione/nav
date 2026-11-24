@@ -8,7 +8,7 @@
 
   // Global State
   let navData = null;
-  let activeEngine = 'google';
+  let activeEngine = localStorage.getItem('nav_active_engine') || 'google';
   let isUnlocked = false;
   let decryptedItems = null;
 
@@ -145,12 +145,42 @@
   }
 
   function setTheme(theme) {
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
+    const isLight = theme === 'light';
+    document.documentElement.classList.toggle('light', isLight);
+    document.documentElement.classList.toggle('dark', !isLight);
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', isLight ? '#f8fafc' : '#030712');
     }
-    localStorage.setItem('nav_theme', theme);
+    localStorage.setItem('nav_theme', isLight ? 'light' : 'dark');
+  }
+
+  // Sync page title, headings, footer, and active search engine from links.json
+  function applySiteMetadata() {
+    if (!navData) return;
+    const site = navData.site || {};
+
+    if (site.title) {
+      const sidebarTitle = document.getElementById('sidebar-site-title');
+      const mobileTitle = document.getElementById('mobile-site-title');
+      if (sidebarTitle) sidebarTitle.textContent = site.title;
+      if (mobileTitle) mobileTitle.textContent = site.title;
+      document.title = site.pageTitle || (site.author ? `${site.author} · ${site.title}` : site.title);
+    }
+
+    if (site.footerText) {
+      const footerEl = document.getElementById('site-footer-text');
+      if (footerEl) footerEl.textContent = site.footerText;
+    }
+
+    if (Array.isArray(navData.searchEngines) && navData.searchEngines.length > 0) {
+      const matched = navData.searchEngines.find(e => e.id === activeEngine) || navData.searchEngines[0];
+      activeEngine = matched.id;
+      localStorage.setItem('nav_active_engine', activeEngine);
+      if (searchInput) {
+        searchInput.placeholder = matched.placeholder || `使用 ${matched.name} 搜索全网，或输入关键词过滤书签...`;
+      }
+    }
   }
 
   // Load Data
@@ -159,6 +189,7 @@
       const response = await fetch('./links.json');
       if (!response.ok) throw new Error('Failed to load links.json');
       navData = await response.json();
+      applySiteMetadata();
       renderSidebarSubtitle();
       renderAll();
     } catch (err) {
@@ -291,6 +322,7 @@
     engineTabsContainer.querySelectorAll('.engine-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         activeEngine = tab.getAttribute('data-engine');
+        localStorage.setItem('nav_active_engine', activeEngine);
         const name = tab.getAttribute('data-name');
         const placeholder = tab.getAttribute('data-placeholder');
         searchInput.placeholder = placeholder || `使用 ${name} 搜索全网，或输入关键词过滤书签...`;
@@ -319,7 +351,7 @@
             ${getIconSvg(cat.icon, 'w-4 h-4')}
           </span>
           <span class="truncate flex-1 sidebar-hide-on-collapse">${cat.name}</span>
-          <span class="text-[11px] px-1.5 py-0.2 rounded-md bg-white/5 text-[var(--card-text-secondary)] font-mono sidebar-hide-on-collapse">${cat.items.length}</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded-md bg-white/5 text-[var(--card-text-secondary)] font-mono sidebar-hide-on-collapse">${cat.items.length}</span>
         </a>
       `;
     });
@@ -334,7 +366,7 @@
               ${getIconSvg(isUnlocked ? 'lock-open' : 'lock-closed', 'w-4 h-4')}
             </span>
             <span class="truncate flex-1 sidebar-hide-on-collapse">${v.name}</span>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 dark:text-amber-300 sidebar-hide-on-collapse">
+            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 dark:text-amber-300 sidebar-hide-on-collapse">
               ${isUnlocked ? '已解锁' : '加密'}
             </span>
           </a>
@@ -566,7 +598,7 @@
           <div class="w-8 h-8 rounded-lg bg-gradient-to-tr ${badge.bg} border ${badge.border} flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
             ${
               item.icon && !item.icon.includes('avatar.png')
-                ? `<img src="${item.icon}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'font-bold text-xs ${badge.text}\\'>${initial}</span>';">`
+                ? `<img src="${item.icon}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'font-bold text-xs ${badge.text}\\'>${initial}</span>';">`
                 : `<span class="font-bold text-xs ${badge.text}">${initial}</span>`
             }
           </div>
@@ -848,9 +880,13 @@
       searchInput.focus();
     });
 
-    // Keyboard shortcuts: '/' or 'Cmd+K' to focus search
+    // Keyboard shortcuts: '/' or 'Cmd+K' to focus search, 'Escape' to close unlock modal or clear search
     window.addEventListener('keydown', (e) => {
-      if ((e.key === '/' || (e.key === 'k' && (e.metaKey || e.ctrlKey))) && document.activeElement !== searchInput) {
+      if (e.key === 'Escape' && unlockModal && !unlockModal.classList.contains('hidden')) {
+        closeUnlockModal();
+        return;
+      }
+      if ((e.key === '/' || (e.key === 'k' && (e.metaKey || e.ctrlKey))) && document.activeElement !== searchInput && document.activeElement !== unlockPasswordInput) {
         e.preventDefault();
         searchInput.focus();
         searchInput.select();
@@ -957,6 +993,11 @@
       if (e.key === 'Enter') submitUnlock();
     });
     unlockCancelBtn.addEventListener('click', closeUnlockModal);
+    if (unlockModal) {
+      unlockModal.addEventListener('click', (e) => {
+        if (e.target === unlockModal) closeUnlockModal();
+      });
+    }
 
     togglePasswordVisibility.addEventListener('click', () => {
       const isPass = unlockPasswordInput.type === 'password';
