@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>私密书签离线加密工具 - Bento Glass</title>
   <link rel="icon" href="./assets/images/favicon.jpg" type="image/jpeg">
-  <link rel="stylesheet" href="./assets/css/tailwind.min.css?v=20261125-2">
+  <link rel="stylesheet" href="./assets/css/tailwind.min.css?v=20261125-3">
   <style>
     body {
       background: radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
@@ -71,13 +71,13 @@
       <div class="space-y-5">
         <!-- Password Field -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+          <label for="password-input" class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
             <span>第一步：设置私密访问密码</span>
-            <span class="text-[11px] text-slate-400 font-normal">用于在导航站解密查看</span>
+            <span class="text-[11px] text-slate-400 font-normal">用于在导航站解密查看（原样保留空格）</span>
           </label>
           <div class="relative">
-            <input id="password-input" type="password" placeholder="输入你要设定的解锁密码..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm pr-10 transition-all">
-            <button id="toggle-pwd-btn" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1" title="切换密码可见">
+            <input id="password-input" type="password" placeholder="输入你要设定的解锁密码..." class="glass-input w-full rounded-xl px-4 py-2.5 text-sm pr-10 transition-colors">
+            <button id="toggle-pwd-btn" type="button" aria-label="显示密码" aria-pressed="false" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1" title="切换密码可见">
               <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
           </div>
@@ -86,13 +86,13 @@
         <!-- Bookmarks JSON Field -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label class="text-xs font-semibold text-slate-300">第二步：输入私密书签 JSON 列表</label>
+            <label for="json-input" class="text-xs font-semibold text-slate-300">第二步：输入私密书签 JSON 列表</label>
             <div class="flex items-center gap-2">
               <button id="format-json-btn" type="button" class="text-[11px] text-indigo-400 hover:text-indigo-300 hover:underline">格式化 JSON</button>
               <button id="reset-sample-btn" type="button" class="text-[11px] text-slate-400 hover:text-slate-200 hover:underline">填入示例</button>
             </div>
           </div>
-          <textarea id="json-input" rows="7" class="glass-input w-full rounded-xl p-3 text-xs font-mono transition-all leading-relaxed" placeholder="请输入合法的 JSON 数组，包含 title, url, description, icon..."></textarea>
+          <textarea id="json-input" rows="7" class="glass-input w-full rounded-xl p-3 text-xs font-mono transition-colors leading-relaxed" placeholder="请输入合法的 JSON 数组，包含 title, url, description, icon..."></textarea>
         </div>
 
         <!-- Generate Button -->
@@ -104,7 +104,7 @@
         <!-- Result Output -->
         <div id="result-container" class="pt-2">
           <div class="flex items-center justify-between mb-1.5">
-            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <label for="output-box" class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
               <span>第三步：生成结果</span>
               <span id="item-count-badge" class="hidden text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">已加密 0 个书签</span>
             </label>
@@ -125,8 +125,9 @@
   </footer>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3 flex items-center gap-2"></div>
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3 flex items-center gap-2"></div>
 
+  <script src="./assets/js/crypto-vault.js?v=20261125-3"></script>
   <script>
     const sampleBookmarks = [
       {
@@ -143,9 +144,13 @@
       }
     ];
 
+    const EYE_OPEN_PATHS = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+    const EYE_CLOSED_PATHS = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+
     const passwordInput = document.getElementById('password-input');
     const jsonInput = document.getElementById('json-input');
     const togglePwdBtn = document.getElementById('toggle-pwd-btn');
+    const eyeIcon = document.getElementById('eye-icon');
     const formatJsonBtn = document.getElementById('format-json-btn');
     const resetSampleBtn = document.getElementById('reset-sample-btn');
     const generateBtn = document.getElementById('generate-btn');
@@ -153,13 +158,18 @@
     const copyBtn = document.getElementById('copy-btn');
     const itemCountBadge = document.getElementById('item-count-badge');
     const toast = document.getElementById('toast');
+    let toastTimer = null;
 
     // Init sample
     jsonInput.value = JSON.stringify(sampleBookmarks, null, 2);
 
-    // Toggle Password Visibility
+    // Toggle Password Visibility with Icon & ARIA State
     togglePwdBtn.addEventListener('click', () => {
-      passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+      const show = passwordInput.type === 'password';
+      passwordInput.type = show ? 'text' : 'password';
+      togglePwdBtn.setAttribute('aria-pressed', show ? 'true' : 'false');
+      togglePwdBtn.setAttribute('aria-label', show ? '隐藏密码' : '显示密码');
+      eyeIcon.innerHTML = show ? EYE_CLOSED_PATHS : EYE_OPEN_PATHS;
     });
 
     // Format JSON
@@ -179,9 +189,9 @@
       showToast('已重置为示例书签', 'info');
     });
 
-    // Generate Encrypted Ciphertext
+    // Generate Encrypted Ciphertext (preserve password whitespace verbatim)
     generateBtn.addEventListener('click', async () => {
-      const password = passwordInput.value.trim();
+      const password = passwordInput.value;
       const rawJson = jsonInput.value.trim();
 
       if (!password) {
@@ -206,15 +216,19 @@
       `;
 
       try {
-        const cryptoResult = await encryptVault(password, items);
+        const cryptoResult = await window.VaultCrypto.encryptVault(password, items);
         const snippet = `"crypto": ` + JSON.stringify(cryptoResult, null, 2);
         outputBox.value = snippet;
         copyBtn.classList.remove('hidden');
         itemCountBadge.classList.remove('hidden');
         itemCountBadge.textContent = `已成功加密 ${items.length} 个书签`;
-        showToast(`🎉 成功加密 ${items.length} 个书签！点击右上角直接复制`, 'success');
+        showToast(`成功加密 ${items.length} 个书签！点击右上角直接复制`, 'success');
       } catch (err) {
-        showToast('加密失败: ' + err.message, 'error');
+        if (err && err.code === 'CRYPTO_UNAVAILABLE') {
+          showToast('当前环境不支持 Web Crypto API，请在 HTTPS 或 localhost 下使用', 'error');
+        } else {
+          showToast('加密失败: ' + err.message, 'error');
+        }
       } finally {
         generateBtn.disabled = false;
         generateBtn.innerHTML = `
@@ -227,73 +241,28 @@
     // Copy Result
     copyBtn.addEventListener('click', () => {
       if (!outputBox.value) return;
-      navigator.clipboard.writeText(outputBox.value).then(() => {
-        showToast('✅ 已复制加密密文片段，直接替换 links.json 中的 "crypto": { ... } 即可！', 'success');
-      }).catch(() => {
-        outputBox.select();
-        document.execCommand('copy');
-        showToast('✅ 已复制到剪贴板！', 'success');
-      });
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(outputBox.value).then(() => {
+          showToast('已复制加密密文片段，直接替换 links.json 中的 "crypto": { ... } 即可！', 'success');
+        }).catch(() => fallbackCopy());
+      } else {
+        fallbackCopy();
+      }
     });
 
-    // Native Web Crypto API: PBKDF2 (100,000 iterations) + AES-256-GCM
-    async function encryptVault(password, itemsArray) {
-      const salt = window.crypto.getRandomValues(new Uint8Array(16));
-      const iv = window.crypto.getRandomValues(new Uint8Array(12));
-      const subtle = window.crypto.subtle;
-
-      const pwKey = await subtle.importKey(
-        'raw',
-        new TextEncoder().encode(password),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveKey']
-      );
-
-      const derivedKey = await subtle.deriveKey(
-        {
-          name: 'PBKDF2',
-          salt: salt,
-          iterations: 100000,
-          hash: 'SHA-256'
-        },
-        pwKey,
-        { name: 'AES-GCM', length: 256 },
-        false,
-        ['encrypt']
-      );
-
-      const plaintext = new TextEncoder().encode(JSON.stringify(itemsArray));
-      const ciphertextWithTag = await subtle.encrypt(
-        {
-          name: 'AES-GCM',
-          iv: iv
-        },
-        derivedKey,
-        plaintext
-      );
-
-      return {
-        algorithm: 'AES-256-GCM',
-        kdf: 'PBKDF2-SHA256',
-        iterations: 100000,
-        salt: bytesToHex(salt),
-        iv: bytesToHex(iv),
-        ciphertext: bytesToHex(new Uint8Array(ciphertextWithTag)),
-        itemCount: itemsArray.length
-      };
-    }
-
-    function bytesToHex(bytes) {
-      return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    function fallbackCopy() {
+      outputBox.select();
+      const copied = document.execCommand('copy');
+      showToast(copied ? '已复制到剪贴板！' : '复制失败，请手动全选复制', copied ? 'success' : 'error');
     }
 
     function showToast(msg, type = 'info') {
+      if (toastTimer) clearTimeout(toastTimer);
       toast.textContent = msg;
       toast.className = 'fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl transition-all duration-300 flex items-center gap-2 ' +
         (type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-rose-600 text-white' : 'bg-indigo-600 text-white');
       toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
-      setTimeout(() => {
+      toastTimer = setTimeout(() => {
         toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
       }, 3000);
     }

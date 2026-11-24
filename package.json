@@ -1,0 +1,14 @@
+{
+  "name": "bento-glass-nav",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-build glassmorphism Bento personal navigation with client-side AES-256-GCM vault",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.min.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.min.css --watch",
+    "validate": "node ./scripts/validate-links.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

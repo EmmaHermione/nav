@@ -11,7 +11,7 @@
 - 🔒 **金融级 AES-256-GCM 密码学私密分类（防 F12 审查）**：
   - 私密分类书签在数据文件中**仅以密文形式存储**，源码及 `links.json` 中绝不暴露任何明文网址或标题；
   - 采用 PBKDF2（100,000 次加盐迭代）与原生 `Web Crypto API` AES-256-GCM 在内存中端到端解密；
-  - 离开/切换标签页时自动重新上锁防窥屏，解锁弹窗支持 `Esc` 或点击遮罩快捷关闭；
+  - 离开/切换标签页超过 3 分钟后自动重新上锁防窥屏，解锁弹窗支持 `Esc`、焦点锁定与点击遮罩快捷关闭；
   - 加密生成功能已剥离至独立离线页面 `crypto-tool.html`，保障主站零负担运行。
 - 💬 **双路独立一言（Hitokoto）系统**：
   - **侧边栏副标题**：支持在 `links.json` 自定义固定文本；留空 `""` 时默认调用短句一言（默认 `maxLength: 12`），契合窄侧栏不折行；
@@ -22,7 +22,7 @@
   - 全局快捷键：按 `/` 或 `Cmd/Ctrl + K` 瞬间聚焦搜索框，按 `Esc` 快速清空并失焦。
 - 🧭 **侧边栏收缩、精准滚动跟随与移动端适配**：
   - 桌面端支持收起为 68px 迷你图标栏并记住状态，采用 `requestAnimationFrame` 节流滚动跟随（ScrollSpy）与点击平滑定位；
-  - 移动端支持抽屉式菜单、顶栏主题切换及 PWA（`manifest.json`）添加到主屏幕。
+  - 移动端支持抽屉式菜单、顶栏主题切换、PWA（`manifest.json` + `sw.js` 离线缓存）添加到主屏幕。
 - ⚡ **极致静态性能**：
   - 预编译精简静态 `tailwind.min.css`（约 29 KB），无浏览器端运行时 CSS 编译脚本；
   - 书签图标开启 `loading="lazy"` 懒加载与异步解码，图标加载失败自动降级为确定性多彩渐变首字母徽标；卡片悬停支持一键复制网址。
@@ -37,16 +37,25 @@ glass-nav/
 ├── crypto-tool.html      # 独立离线加密生成器页面（站长专用）
 ├── links.json            # 站点配置、一言参数、搜索引擎、书签与加密密文
 ├── manifest.json         # PWA 添加到主屏幕配置清单
+├── sw.js                 # PWA Service Worker 离线缓存脚本
 ├── encrypt_tool.js       # 离线命令行加密辅助脚本
-├── assets/
-│   ├── css/
-│   │   ├── tailwind.min.css # 预编译静态 Tailwind CSS
-│   │   └── style.css        # 毛玻璃质感、主题变量、侧栏收起与高亮样式
-│   ├── images/
-│   │   └── favicon.jpg      # 站点图标与个人主页书签图标
-│   └── js/
-│       └── app.js           # 核心逻辑：搜索、双路一言、滚动跟随、Web Crypto 解密
-└── README.md             # 本说明文档
+├── package.json          # Tailwind CSS 重编译与配置校验脚本（非运行时依赖）
+├── tailwind.config.js    # Tailwind CSS 扫描与暗色模式配置
+├── src/
+│   └── input.css         # Tailwind CSS 编译入口
+├── scripts/
+│   └── validate-links.js # links.json 结构与链接安全性校验脚本
+└── assets/
+    ├── css/
+    │   ├── tailwind.min.css # 预编译静态 Tailwind CSS
+    │   └── style.css        # 毛玻璃质感、主题变量、侧栏收起与高亮样式
+    ├── images/
+    │   ├── favicon.jpg      # 站点图标与个人主页书签图标
+    │   ├── icon-192.png     # PWA 192x192 图标
+    │   └── icon-512.png     # PWA 512x512 图标
+    └── js/
+        ├── crypto-vault.js  # 共享 Web Crypto AES-256-GCM 加解密模块
+        └── app.js           # 核心逻辑：搜索、双路一言、滚动跟随、局部刷新
 ```
 
 ---

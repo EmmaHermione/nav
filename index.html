@@ -2,26 +2,30 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>loverorien · 个人导航</title>
   <meta name="description" content="精心雕琢的毛玻璃 Bento 个人导航站点，支持多引擎搜索、即时本地过滤、一言语录与金融级 AES-256-GCM 密码学防 F12 破解私密分类。">
   <link rel="icon" href="./assets/images/favicon.jpg" type="image/jpeg">
-  <link rel="apple-touch-icon" href="./assets/images/favicon.jpg">
+  <link rel="apple-touch-icon" href="./assets/images/icon-192.png">
+  <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#030712">
   <!-- Zero-FOUC Theme Init -->
   <script>
     (function () {
-      var saved = localStorage.getItem('nav_theme');
+      var saved = null;
+      try { saved = localStorage.getItem('nav_theme'); } catch (_) {}
       var isLight = saved ? saved === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches;
       document.documentElement.classList.toggle('light', isLight);
       document.documentElement.classList.toggle('dark', !isLight);
+      var csMeta = document.querySelector('meta[name="color-scheme"]');
+      if (csMeta) csMeta.setAttribute('content', saved === 'light' || saved === 'dark' ? saved : 'light dark');
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', isLight ? '#f8fafc' : '#030712');
     })();
   </script>
   <!-- Precompiled Static Tailwind CSS & Custom Glassmorphism Styles -->
-  <link rel="stylesheet" href="./assets/css/tailwind.min.css?v=20261125-2">
-  <link rel="stylesheet" href="./assets/css/style.css?v=20261125-2">
+  <link rel="stylesheet" href="./assets/css/tailwind.min.css?v=20261125-3">
+  <link rel="stylesheet" href="./assets/css/style.css?v=20261125-3">
   <link rel="manifest" href="./manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,10 +33,10 @@
 <body class="antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- Ambient Glow Background Orbs -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-    <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-float-slow"></div>
-    <div class="absolute top-1/3 -right-40 w-[30rem] h-[30rem] bg-purple-600/15 rounded-full blur-3xl animate-float-slow" style="animation-delay: -5s;"></div>
-    <div class="absolute -bottom-40 left-1/3 w-[28rem] h-[28rem] bg-blue-600/15 rounded-full blur-3xl animate-float-slow" style="animation-delay: -2s;"></div>
+  <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10" aria-hidden="true">
+    <div class="ambient-orb absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-float-slow"></div>
+    <div class="ambient-orb absolute top-1/3 -right-40 w-[30rem] h-[30rem] bg-purple-600/15 rounded-full blur-3xl animate-float-slow" style="animation-delay: -5s;"></div>
+    <div class="ambient-orb absolute -bottom-40 left-1/3 w-[28rem] h-[28rem] bg-blue-600/15 rounded-full blur-3xl animate-float-slow" style="animation-delay: -2s;"></div>
   </div>
 
   <div class="flex min-h-screen">
@@ -41,23 +45,23 @@
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
 
     <!-- Left Navigation Sidebar -->
-    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-64 max-w-[85vw] glass-sidebar z-50 flex flex-col justify-between p-3.5 transition-all duration-300 transform -translate-x-full lg:translate-x-0">
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 h-screen w-64 max-w-[85vw] glass-sidebar z-50 flex flex-col justify-between p-3.5 transform -translate-x-full lg:translate-x-0">
       <div class="flex flex-col min-h-0 flex-1">
         <!-- Brand Header with Collapse Toggle & Mobile Close -->
         <div class="flex items-center justify-between pb-3 border-b border-[var(--glass-border)]">
           <a href="#" id="brand-logo-btn" class="sidebar-brand flex items-center gap-2.5 group overflow-hidden" title="点击展开/回到顶部">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/30 group-hover:scale-105 transition-transform shrink-0">
-              <span class="font-extrabold text-sm tracking-tighter">Nav</span>
+              <span id="brand-logo-text" class="font-extrabold text-sm tracking-tighter">Nav</span>
             </div>
             <div class="sidebar-hide-on-collapse overflow-hidden flex-1 min-w-0 pr-1">
               <h1 class="font-bold text-sm text-[var(--card-text-primary)] tracking-wide flex items-center gap-1.5 truncate">
                 <span id="sidebar-site-title">个人导航</span>
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" aria-hidden="true"></span>
               </h1>
               <div class="flex items-center gap-1 group/sub overflow-hidden">
                 <p id="sidebar-subtitle" class="text-[10px] text-[var(--card-text-secondary)] truncate cursor-pointer hover:text-indigo-400 transition-colors select-none" title="点击换一言">加载一言中...</p>
-                <button id="sidebar-hitokoto-refresh-btn" type="button" class="text-[var(--card-text-secondary)] hover:text-indigo-400 opacity-0 group-hover/sub:opacity-100 transition-opacity shrink-0 p-0.5" title="换一言">
-                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <button id="sidebar-hitokoto-refresh-btn" type="button" aria-label="刷新侧边栏一言" class="min-w-[24px] min-h-[24px] inline-flex items-center justify-center text-[var(--card-text-secondary)] hover:text-indigo-400 opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100 transition-opacity shrink-0 p-1" title="换一言">
+                  <svg class="w-3 h-3" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                 </button>
               </div>
             </div>
@@ -65,13 +69,13 @@
 
           <div class="flex items-center gap-1">
             <!-- Mobile Drawer Close Button -->
-            <button id="mobile-sidebar-close-btn" class="lg:hidden p-1.5 rounded-lg text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="关闭侧边栏">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <button id="mobile-sidebar-close-btn" type="button" aria-label="关闭侧边栏" class="lg:hidden p-1.5 rounded-lg text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="关闭侧边栏">
+              <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
 
             <!-- Desktop Collapse/Expand Toggle Button in Sidebar -->
-            <button id="sidebar-collapse-btn" class="hidden lg:flex p-1.5 rounded-lg text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-colors shrink-0" title="收起/展开侧边栏">
-              <svg id="collapse-icon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="sidebar-collapse-btn" type="button" aria-label="收起或展开侧边栏" aria-expanded="true" class="hidden lg:flex p-1.5 rounded-lg text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/5 transition-colors shrink-0" title="收起/展开侧边栏">
+              <svg id="collapse-icon" class="w-4 h-4 transition-transform duration-300" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
               </svg>
             </button>
@@ -79,8 +83,7 @@
         </div>
 
         <!-- Category Links Scroll Area -->
-        <nav class="mt-2.5 space-y-0.5 overflow-y-auto flex-1 pr-0.5" id="category-nav-list">
-          <!-- Populated dynamically by JS -->
+        <nav aria-label="书签分类导航" class="mt-2.5 space-y-0.5 overflow-y-auto flex-1 pr-0.5" id="category-nav-list">
           <div class="py-4 text-center text-xs text-[var(--card-text-secondary)]">加载分类中...</div>
         </nav>
       </div>
@@ -89,9 +92,9 @@
       <div class="pt-2.5 border-t border-[var(--glass-border)] space-y-2 shrink-0">
         <div class="sidebar-bottom-controls flex items-center justify-center">
           <!-- Theme Toggle Button -->
-          <button id="theme-toggle-btn" class="flex items-center justify-center gap-2 text-xs text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] p-2 rounded-xl hover:bg-white/5 transition-colors w-full" title="切换明暗主题">
-            <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <button id="theme-toggle-btn" type="button" aria-label="切换明暗主题" class="flex items-center justify-center gap-2 text-xs text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] p-2 rounded-xl hover:bg-white/5 transition-colors w-full" title="切换明暗主题">
+            <svg class="w-4 h-4 hidden dark:block" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg class="w-4 h-4 block dark:hidden" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
             <span class="sidebar-hide-on-collapse">切换主题风格</span>
           </button>
         </div>
@@ -102,14 +105,14 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="relative flex-1 flex flex-col min-w-0 transition-all duration-300">
+    <main class="relative flex-1 flex flex-col min-w-0">
 
       <!-- Mobile Top Bar (hidden on desktop) -->
-      <header class="lg:hidden sticky top-0 z-30 px-3.5 sm:px-8 py-2.5 flex items-center justify-between border-b border-[var(--glass-border)] bg-[var(--sidebar-bg)]/80 backdrop-blur-md transition-all">
+      <header class="lg:hidden sticky top-0 z-30 px-3.5 sm:px-8 py-2.5 flex items-center justify-between border-b border-[var(--glass-border)] glass-mobile-header transition-colors">
         <div class="flex items-center gap-2.5">
           <!-- Mobile Menu Toggle -->
-          <button id="mobile-menu-btn" class="p-2 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10" aria-label="打开侧边菜单">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <button id="mobile-menu-btn" type="button" aria-label="打开侧边菜单" aria-expanded="false" aria-controls="sidebar" class="p-2 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10">
+            <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
 
           <!-- Mobile Brand Title -->
@@ -122,58 +125,57 @@
         </div>
 
         <!-- Mobile Top Right Theme Toggle -->
-        <button id="mobile-theme-toggle-btn" class="p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="切换明暗主题">
-          <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-          <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <button id="mobile-theme-toggle-btn" type="button" aria-label="切换明暗主题" class="p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="切换明暗主题">
+          <svg class="w-4 h-4 hidden dark:block" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-4 h-4 block dark:hidden" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
       </header>
 
-      <!-- Desktop Sidebar Expand Button (top-left of main, scrolls naturally, visible only when sidebar collapsed) -->
-      <button id="desktop-sidebar-toggle-btn" class="hidden lg:flex absolute top-5 left-6 z-20 p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="展开/收起侧边栏">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Desktop Sidebar Expand Button (visible only when sidebar collapsed) -->
+      <button id="desktop-sidebar-toggle-btn" type="button" aria-label="展开侧边栏" aria-expanded="false" class="hidden lg:flex absolute top-5 left-6 z-20 p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="展开/收起侧边栏">
+        <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
         </svg>
       </button>
 
-      <!-- Centered Hero Search Zone (Natural Immersive Scroll) -->
+      <!-- Centered Hero Search Zone -->
       <section class="w-full max-w-2xl mx-auto px-4 pt-5 sm:pt-8 lg:pt-10 pb-6 flex flex-col items-center">
         <!-- Search Engine Pill Tabs -->
-        <div id="engine-tabs-container" class="flex items-center gap-1 p-1 rounded-2xl glass-card text-xs mb-3 shadow-md border border-[var(--glass-border)] max-w-full overflow-x-auto no-scrollbar whitespace-nowrap px-1.5">
-          <!-- Rendered dynamically by app.js: [Google] [Bing] [GitHub] [B站] [zlibrary] -->
+        <div id="engine-tabs-container" role="group" aria-label="搜索引擎切换" class="flex items-center gap-1 p-1 rounded-2xl glass-card text-xs mb-3 shadow-md border border-[var(--glass-border)] max-w-full overflow-x-auto no-scrollbar whitespace-nowrap px-1.5">
+          <!-- Rendered dynamically by app.js -->
         </div>
 
         <!-- Centered Constrained Search Box -->
-        <div class="w-full glass-panel rounded-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2.5 shadow-xl border border-[var(--glass-border)] focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
+        <div class="w-full glass-panel rounded-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between gap-2.5 shadow-xl border border-[var(--glass-border)] focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-[border-color,box-shadow]">
           <div class="flex items-center gap-2.5 flex-1 min-w-0">
-            <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input id="search-input" type="text" autocomplete="off" placeholder="使用 Google 搜索全网，或输入关键词即时过滤书签..." class="w-full bg-transparent border-0 py-0.5 text-xs sm:text-sm text-[var(--card-text-primary)] placeholder-[var(--card-text-secondary)] focus:outline-none">
+            <svg class="w-4 h-4 text-indigo-400 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="text" autocomplete="off" aria-label="搜索全网或过滤本地书签" placeholder="使用 Google 搜索全网，或输入关键词即时过滤书签..." class="w-full bg-transparent border-0 py-0.5 text-xs sm:text-sm text-[var(--card-text-primary)] placeholder-[var(--card-text-secondary)] focus:outline-none">
           </div>
 
           <!-- Clear Button -->
-          <button id="search-clear-btn" class="hidden p-1 rounded-md text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)]" title="清空搜索">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <button id="search-clear-btn" type="button" aria-label="清空搜索" class="hidden min-w-[24px] min-h-[24px] inline-flex items-center justify-center p-1 rounded-md text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)]" title="清空搜索">
+            <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
 
           <!-- Shortcut Badge -->
-          <kbd class="hidden sm:inline-block text-[11px] font-mono px-2 py-0.5 rounded-lg bg-white/5 border border-[var(--glass-border)] text-[var(--card-text-secondary)] select-none">
+          <kbd class="hidden sm:inline-block text-[11px] font-mono px-2 py-0.5 rounded-lg bg-white/5 border border-[var(--glass-border)] text-[var(--card-text-secondary)] select-none" aria-hidden="true">
             /
           </kbd>
         </div>
 
-        <!-- Floating Frameless Hitokoto (Responsive Wrap) -->
+        <!-- Floating Frameless Hitokoto -->
         <div class="mt-2.5 flex items-center justify-center gap-1.5 text-xs text-[var(--card-text-secondary)] max-w-xl text-center px-2">
-          <span class="text-indigo-400 font-serif text-sm shrink-0">“</span>
+          <span class="text-indigo-400 font-serif text-sm shrink-0" aria-hidden="true">“</span>
           <span id="hitokoto-text" class="text-[var(--card-text-primary)] transition-opacity duration-200 line-clamp-2">生活原本沉闷，但跑起来就会有风。</span>
           <span id="hitokoto-from" class="text-[var(--card-text-secondary)] text-[10px] sm:text-[11px] opacity-75 shrink-0 transition-opacity duration-200">—— 网络</span>
-          <button id="hitokoto-refresh-btn" class="p-1 rounded-md hover:bg-white/10 text-[var(--card-text-secondary)] hover:text-indigo-400 transition-colors shrink-0" title="换一则一言">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <button id="hitokoto-refresh-btn" type="button" aria-label="刷新一言语录" class="min-w-[24px] min-h-[24px] inline-flex items-center justify-center p-1 rounded-md hover:bg-white/10 text-[var(--card-text-secondary)] hover:text-indigo-400 transition-colors shrink-0" title="换一则一言">
+            <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           </button>
         </div>
       </section>
 
       <!-- Main Bookmarks Content Sections -->
       <div class="flex-1 px-4 sm:px-6 lg:px-8 py-5 max-w-[1520px] mx-auto w-full" id="main-content">
-        <!-- Rendered dynamically by app.js -->
         <div class="text-center py-20 text-sm text-[var(--card-text-secondary)]">
           正在加载导航书签...
         </div>
@@ -187,14 +189,14 @@
     </main>
   </div>
 
-  <!-- Feature 2: Unlock Password Modal (AES-256-GCM Decryption) -->
-  <div id="unlock-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-panel rounded-3xl p-6 sm:p-8 max-w-md w-full border-amber-500/30 shadow-2xl relative">
+  <!-- Native Unlock Password Modal (AES-256-GCM Decryption) -->
+  <dialog id="unlock-modal" closedby="any" aria-labelledby="unlock-modal-title" class="p-0 bg-transparent border-0">
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 w-full border-amber-500/30 shadow-2xl relative">
       <div class="text-center mb-6">
-        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-3 shadow-lg">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <svg class="w-7 h-7" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         </div>
-        <h3 class="text-lg font-bold text-[var(--card-text-primary)]">解锁私密站点</h3>
+        <h1 id="unlock-modal-title" class="text-lg font-bold text-[var(--card-text-primary)]">解锁私密站点</h1>
         <p class="text-xs text-[var(--card-text-secondary)] mt-1.5">
           采用 AES-256-GCM 对称加密，基于 Web Crypto API 实现。
         </p>
@@ -202,11 +204,11 @@
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-[var(--card-text-secondary)] mb-1.5">请输入访问密码</label>
+          <label for="unlock-password-input" class="block text-xs font-semibold text-[var(--card-text-secondary)] mb-1.5">请输入访问密码</label>
           <div class="relative">
-            <input id="unlock-password-input" type="password" placeholder="默认密码1234567" class="w-full glass-card rounded-xl px-4 py-3 text-sm text-[var(--card-text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500 border border-[var(--glass-border)] transition-all">
-            <button id="toggle-password-visibility" type="button" class="absolute right-3 top-3 text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)]">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <input id="unlock-password-input" type="password" autofocus autocomplete="current-password" placeholder="请输入解锁密码..." class="w-full glass-card rounded-xl px-4 py-3 pr-10 text-sm text-[var(--card-text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500 border border-[var(--glass-border)] transition-colors">
+            <button id="toggle-password-visibility" type="button" aria-label="显示密码" aria-pressed="false" class="min-w-[28px] min-h-[28px] inline-flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] p-1">
+              <svg id="toggle-password-icon" class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
           </div>
         </div>
@@ -215,27 +217,26 @@
           <button id="unlock-cancel-btn" type="button" class="flex-1 py-2.5 rounded-xl border border-[var(--glass-border)] text-xs font-medium text-[var(--card-text-secondary)] hover:bg-white/5 transition-colors">
             取消
           </button>
-          <button id="unlock-submit-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold shadow-lg shadow-amber-500/25 transition-all">
+          <button id="unlock-submit-btn" type="button" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold shadow-lg shadow-amber-500/25 transition-colors">
             确定解锁
           </button>
         </div>
       </div>
     </div>
-  </div>
-
-
+  </dialog>
 
   <!-- Floating Back to Top Button -->
-  <button id="back-to-top-btn" class="fixed bottom-6 right-6 z-40 p-2.5 rounded-2xl glass-card text-indigo-400 hover:text-white hover:bg-indigo-600/80 shadow-2xl opacity-0 pointer-events-none transition-all duration-300 transform translate-y-3 flex items-center justify-center border border-[var(--glass-border)] cursor-pointer" title="回到顶部">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <button id="back-to-top-btn" type="button" aria-label="回到顶部" class="fixed bottom-6 right-6 z-40 p-2.5 rounded-2xl glass-card text-indigo-400 hover:text-white hover:bg-indigo-600/80 shadow-2xl opacity-0 pointer-events-none transition-[opacity,transform,background-color,color] duration-300 transform translate-y-3 flex items-center justify-center border border-[var(--glass-border)] cursor-pointer" title="回到顶部">
+    <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
     </svg>
   </button>
 
-  <!-- Toast Container -->
-  <div id="toast-container" class="fixed bottom-20 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <!-- Centralized Toast Live Region -->
+  <div id="toast-container" role="status" aria-live="polite" aria-atomic="false" class="fixed bottom-20 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- Application Logic -->
-  <script src="./assets/js/app.js?v=20261125-2"></script>
+  <!-- Shared Crypto & Application Logic -->
+  <script src="./assets/js/crypto-vault.js?v=20261125-3"></script>
+  <script src="./assets/js/app.js?v=20261125-3"></script>
 </body>
 </html>
