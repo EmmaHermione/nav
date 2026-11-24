@@ -91,41 +91,41 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col min-w-0 transition-all duration-300">
+    <main class="relative flex-1 flex flex-col min-w-0 transition-all duration-300">
 
-      <!-- Slim Top Bar (Controls & Brand on Mobile, static on desktop) -->
-      <header class="sticky top-0 lg:static z-30 px-3.5 sm:px-8 py-2.5 flex items-center justify-between border-b border-[var(--glass-border)] lg:border-b-0 bg-[var(--sidebar-bg)]/80 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none transition-all">
+      <!-- Mobile Top Bar (hidden on desktop) -->
+      <header class="lg:hidden sticky top-0 z-30 px-3.5 sm:px-8 py-2.5 flex items-center justify-between border-b border-[var(--glass-border)] bg-[var(--sidebar-bg)]/80 backdrop-blur-md transition-all">
         <div class="flex items-center gap-2.5">
           <!-- Mobile Menu Toggle -->
-          <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10" aria-label="打开侧边菜单">
+          <button id="mobile-menu-btn" class="p-2 rounded-xl glass-card text-[var(--card-text-primary)] hover:bg-white/10" aria-label="打开侧边菜单">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
 
-          <!-- Mobile Brand Title (shows on mobile only) -->
-          <div class="flex lg:hidden items-center gap-2">
+          <!-- Mobile Brand Title -->
+          <div class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold shadow-sm">
               NAV
             </div>
             <span class="text-xs font-bold text-[var(--card-text-primary)]">个人导航</span>
           </div>
-
-          <!-- Desktop Sidebar Toggle Button in Header -->
-          <button id="desktop-sidebar-toggle-btn" class="hidden lg:flex p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="展开/收起侧边栏">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
-            </svg>
-          </button>
         </div>
 
         <!-- Mobile Top Right Theme Toggle -->
-        <button id="mobile-theme-toggle-btn" class="lg:hidden p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="切换明暗主题">
+        <button id="mobile-theme-toggle-btn" class="p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="切换明暗主题">
           <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
       </header>
 
+      <!-- Desktop Sidebar Expand Button (top-left of main, scrolls naturally, visible only when sidebar collapsed) -->
+      <button id="desktop-sidebar-toggle-btn" class="hidden lg:flex absolute top-5 left-6 z-20 p-2 rounded-xl glass-card text-[var(--card-text-secondary)] hover:text-[var(--card-text-primary)] hover:bg-white/10 transition-colors" title="展开/收起侧边栏">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+        </svg>
+      </button>
+
       <!-- Centered Hero Search Zone (Natural Immersive Scroll) -->
-      <section class="w-full max-w-2xl mx-auto px-4 pt-4 sm:pt-6 pb-6 flex flex-col items-center">
+      <section class="w-full max-w-2xl mx-auto px-4 pt-5 sm:pt-8 lg:pt-10 pb-6 flex flex-col items-center">
         <!-- Search Engine Pill Tabs -->
         <div id="engine-tabs-container" class="flex items-center gap-1 p-1 rounded-2xl glass-card text-xs mb-3 shadow-md border border-[var(--glass-border)] max-w-full overflow-x-auto no-scrollbar whitespace-nowrap px-1.5">
           <!-- Rendered dynamically by app.js: [Google] [Bing] [GitHub] [B站] [zlibrary] -->
