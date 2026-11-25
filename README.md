@@ -49,7 +49,8 @@ glass-nav/
     │   ├── tailwind.min.css # 预编译静态 Tailwind CSS
     │   └── style.css        # 毛玻璃质感、主题变量、侧栏收起与高亮样式
     ├── images/
-    │   ├── favicon.jpg      # 站点图标与个人主页书签图标
+    │   ├── favicon.png      # 浏览器标签页圆形图标
+    │   ├── favicon.jpg      # 个人主页书签卡片图标
     │   ├── icon-192.png     # PWA 192x192 图标
     │   └── icon-512.png     # PWA 512x512 图标
     └── js/

@@ -1,6 +1,6 @@
 /* Minimal PWA Service Worker for Bento Glass Navigation */
 
-const CACHE_NAME = 'bento-nav-v20261125-3';
+const CACHE_NAME = 'bento-nav-v20261125-4';
 const APP_SHELL_ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const APP_SHELL_ASSETS = [
   './assets/css/style.css?v=20261125-3',
   './assets/js/crypto-vault.js?v=20261125-3',
   './assets/js/app.js?v=20261125-3',
+  './assets/images/favicon.png?v=20261125-4',
   './assets/images/favicon.jpg',
   './assets/images/icon-192.png',
   './assets/images/icon-512.png'
