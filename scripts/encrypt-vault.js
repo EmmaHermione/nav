@@ -1,16 +1,16 @@
 /**
  * Offline CLI Encryption Tool for Secret Navigation Bookmarks
- * Usage: node encrypt_tool.js <password> [json_file_path]
+ * Usage: node scripts/encrypt-vault.js "<password>" [json_file_path]
  */
 
 const fs = require('fs');
-const { encryptVault } = require('./assets/js/crypto-vault');
+const { encryptVault } = require('../assets/js/crypto-vault');
 
 const password = process.argv[2];
 const inputPath = process.argv[3];
 
 if (!password) {
-  console.error('用法: node encrypt_tool.js "<解锁密码>" [书签JSON文件路径]');
+  console.error('用法: node scripts/encrypt-vault.js "<解锁密码>" [书签JSON文件路径]');
   console.error('安全提示: 为避免误用弱默认密码，请显式传入自定义密码。');
   process.exit(1);
 }

@@ -38,13 +38,12 @@ glass-nav/
 ├── links.json            # 站点配置、一言参数、搜索引擎、书签与加密密文
 ├── manifest.json         # PWA 添加到主屏幕配置清单
 ├── sw.js                 # PWA Service Worker 离线缓存脚本
-├── encrypt_tool.js       # 离线命令行加密辅助脚本
-├── package.json          # Tailwind CSS 重编译与配置校验脚本（非运行时依赖）
-├── tailwind.config.js    # Tailwind CSS 扫描与暗色模式配置
-├── src/
-│   └── input.css         # Tailwind CSS 编译入口
+├── package.json          # Tailwind CSS 重编译与本地维护脚本（非运行时依赖）
 ├── scripts/
-│   └── validate-links.js # links.json 结构与链接安全性校验脚本
+│   ├── encrypt-vault.js  # 离线命令行加密辅助脚本
+│   ├── validate-links.js # links.json 结构与链接安全性校验脚本
+│   ├── tailwind.config.js# Tailwind CSS 扫描与暗色模式配置
+│   └── tailwind.input.css# Tailwind CSS 编译入口
 └── assets/
     ├── css/
     │   ├── tailwind.min.css # 预编译静态 Tailwind CSS
@@ -108,7 +107,7 @@ glass-nav/
 #### 方式 B：通过命令行运行加密脚本
 在终端中执行：
 ```bash
-node encrypt_tool.js "您的自定义密码"
+node scripts/encrypt-vault.js "您的自定义密码"
 ```
 终端将自动打印出带有 `"crypto": { ... }` 的完整节点，直接复制整段替换至 `links.json` 即可。
 

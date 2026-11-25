@@ -4,9 +4,10 @@
   "private": true,
   "description": "Zero-build glassmorphism Bento personal navigation with client-side AES-256-GCM vault",
   "scripts": {
-    "build:css": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.min.css --minify",
-    "watch:css": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.min.css --watch",
-    "validate": "node ./scripts/validate-links.js"
+    "build:css": "tailwindcss -c ./scripts/tailwind.config.js -i ./scripts/tailwind.input.css -o ./assets/css/tailwind.min.css --minify",
+    "watch:css": "tailwindcss -c ./scripts/tailwind.config.js -i ./scripts/tailwind.input.css -o ./assets/css/tailwind.min.css --watch",
+    "validate": "node ./scripts/validate-links.js",
+    "encrypt": "node ./scripts/encrypt-vault.js"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.19"
